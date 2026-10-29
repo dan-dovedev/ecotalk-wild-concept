@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ecotalk Wild</title>
+<meta name="description" content="Ecotalk Wild: a concept members' app and business portal by Dan Jones. Not a live Ecotalk product.">
+<meta name="theme-color" content="#212F17">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ecotalk Wild">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<script>
+  // Launched from the home screen: go straight into the members' app
+  if (window.matchMedia("(display-mode: standalone)").matches || navigator.standalone) location.replace("app.html");
+</script>
+<style>
+@font-face{font-family:"Borna";src:url("assets/BornaMedium.otf") format("opentype");font-weight:500;font-display:swap}
+:root{--forest:#212F17;--forest-2:#2C3D20;--lime:#AEF009;--mint:#D7F8EB;--off:#F5F9F1;--slate:#354E5A;--cyan:#00FFEE;--ease:cubic-bezier(.2,.8,.2,1);
+  --gutter:clamp(16px,4vw,48px);font-family:"Borna",system-ui,-apple-system,"Segoe UI",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--forest);color:var(--off);min-height:100%}
+body{-webkit-font-smoothing:antialiased;line-height:1.45}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+h1,h2,h3{font-weight:500;letter-spacing:-.015em;line-height:1.08}
+
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.bg{position:absolute;inset:0;background:radial-gradient(120% 80% at 80% 0%,#3f6b52 0,transparent 60%),linear-gradient(170deg,#2c4a3a,#141d10)}
+.bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .8s;transform:scale(1.04);animation:kb 30s ease-in-out infinite alternate}
+.bg img.on{opacity:.55}
+@keyframes kb{to{transform:scale(1.14) translate(-2%,-1%)}}
+.bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,30,14,.92) 0,rgba(20,30,14,.6) 55%,rgba(20,30,14,.35) 100%),linear-gradient(0deg,rgba(20,30,14,.95) 0,transparent 45%)}
+.top{position:relative;display:flex;justify-content:space-between;align-items:center;padding:24px var(--gutter)}
+.word{font-size:24px;letter-spacing:-.02em}.word b{color:var(--lime);font-weight:500}
+.pill{font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:7px 12px;border-radius:99px;background:rgba(245,249,241,.12);border:1px solid rgba(245,249,241,.2)}
+.main{position:relative;flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px var(--gutter) 40px;max-width:1240px;width:100%;margin:0 auto}
+.eyebrow{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--lime)}
+h1{font-size:clamp(40px,6.4vw,84px);margin-top:12px;max-width:900px}
+.lede{font-size:clamp(17px,1.7vw,21px);max-width:720px;margin-top:18px;opacity:.9}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:36px;max-width:1100px}
+.choice{position:relative;text-align:left;border-radius:24px;padding:26px;background:rgba(245,249,241,.07);border:1px solid rgba(245,249,241,.16);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  display:flex;flex-direction:column;gap:12px;transition:transform .25s var(--ease),background .25s,border-color .25s;min-height:230px}
+.choice:hover{transform:translateY(-3px);background:rgba(245,249,241,.11);border-color:rgba(174,240,9,.5)}
+.choice:active{transform:scale(.98)}
+.choice .ico{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:var(--lime);color:var(--forest)}
+.choice .ico svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.choice h2{font-size:28px}
+.choice p{opacity:.82;font-size:16px}
+.choice .go{margin-top:auto;display:inline-flex;align-items:center;gap:8px;color:var(--lime);font-size:16px}
+.choice .tag{position:absolute;top:22px;right:22px}
+.alt{font-size:14px;opacity:.7;margin-top:8px}
+.alt a{color:var(--lime)}
+
+.facts{position:relative;background:var(--off);color:var(--forest);padding:56px var(--gutter)}
+.facts .in{max-width:1240px;margin:0 auto}
+.facts h2{font-size:clamp(26px,3vw,36px)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.col{border-radius:20px;padding:22px;background:#fff;border:1px solid rgba(33,47,23,.1)}
+.col.concept{background:var(--mint);border-color:transparent}
+.col h3{font-size:20px;display:flex;align-items:center;gap:10px}
+.col h3 i{font-style:normal;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:15px;background:var(--forest);color:var(--lime)}
+.col ul{list-style:none;margin-top:12px}
+.col li{padding:7px 0;border-top:1px solid rgba(33,47,23,.08);font-size:15px;color:#2f3d33}
+.col li:first-child{border-top:0}
+.note{margin-top:22px;font-size:14px;color:var(--slate);max-width:820px}
+.foot{text-align:center;font-size:13px;color:var(--slate);padding:0 var(--gutter) 40px;background:var(--off)}
+
+/* simulator */
+.sim{position:fixed;inset:0;z-index:50;background:radial-gradient(100% 80% at 50% 0%,#2f4a32 0,#121a0e 70%);display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .3s}
+.sim.open{opacity:1;pointer-events:auto}
+.sim-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px var(--gutter);flex-wrap:wrap}
+.seg{display:flex;background:rgba(245,249,241,.1);border-radius:99px;padding:4px}
+.seg button{min-height:40px;padding:0 16px;border-radius:99px;font-size:14px;opacity:.8}
+.seg button.on{background:var(--lime);color:var(--forest);opacity:1}
+.sim-bar .r{display:flex;gap:10px;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:99px;background:rgba(245,249,241,.12);font-size:14px;text-decoration:none}
+.btn.lime{background:var(--lime);color:var(--forest)}
+.stage{flex:1;position:relative;display:grid;place-items:center;overflow:hidden;padding:8px 16px 24px}
+.device{position:relative;transform-origin:center center;background:#0b0f09;border-radius:46px;padding:18px;box-shadow:0 40px 80px -20px rgba(0,0,0,.7),0 0 0 2px #2a3326,inset 0 0 0 2px #1c2318}
+.device.phone{border-radius:54px;padding:14px}
+.device iframe{display:block;border:0;border-radius:30px;background:var(--off)}
+.device.phone iframe{border-radius:42px}
+.hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:13px;opacity:.6}
+
+@media (max-width:820px){
+  .choices,.cols{grid-template-columns:1fr}
+  .choice{min-height:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <div class="bg"><img id="bgimg" alt=""></div>
+  <div class="top">
+    <div class="word" id="word">eco<b>talk</b> wild</div>
+    <span class="pill">Concept · not a live Ecotalk product</span>
+  </div>
+  <div class="main">
+    <div class="eyebrow">A concept by Dan Jones for Ecotalk</div>
+    <h1>Where nature has a voice, in your pocket and on the business account.</h1>
+    <p class="lede">Two ideas behind one link. A members' app that puts the reserves, Chris and Dale front and centre. And a business portal for the Ecotricity business team: the essentials every company needs, plus the land, ESG reporting and team Wild Points only Ecotalk can offer.</p>
+
+    <div class="choices">
+      <button class="choice" id="openApp">
+        <span class="tag pill">Tablet & phone</span>
+        <span class="ico"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M11 18h2"/></svg></span>
+        <h2>Members' app</h2>
+        <p>NatureCams, stories from Bowyers Wood and Downicary, Spot it, the shareholder vote, and your plan one tap away.</p>
+        <span class="go" id="appGo">Open in tablet simulator →</span>
+      </button>
+      <a class="choice" href="business.html" style="text-decoration:none">
+        <span class="tag pill">Laptop</span>
+        <span class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg></span>
+        <h2>Business portal</h2>
+        <p>SIMs, eSIMs for new starters, usage and one monthly invoice. Then Impact & ESG: land restored, a certificate for the annual report, and team challenges.</p>
+        <span class="go">Open the portal →</span>
+      </a>
+    </div>
+    <p class="alt" id="altLink">On a tablet? <a href="app.html">Open the app full screen</a>, then Share → Add to Home Screen.</p>
+  </div>
+</div>
+
+<section class="facts">
+  <div class="in">
+    <div class="eyebrow" style="color:var(--slate)">So nothing gets taken as a promise</div>
+    <h2>What's real and what's concept</h2>
+    <div class="cols">
+      <div class="col">
+        <h3><i>✓</i>Real, from Ecotalk's site and press</h3>
+        <ul>
+          <li>Bowyers Wood (East Sussex) and Downicary (Devon), with their facts and species</li>
+          <li>Beavers back in East Sussex after 400 years, and the kit born since</li>
+          <li>3,500 trees, nine tawny owl chicks, 37 bird species, 3,000 tonnes of earth moved</li>
+          <li>All twelve NatureCam episodes and Chris Packham's River Cam</li>
+          <li>Quotes from Chris Packham and Dale Vince</li>
+          <li>Today's plan prices, no price rises, and eSIM live within the hour</li>
+          <li>Business plans launching soon, with one monthly invoice and a per-SIM breakdown</li>
+        </ul>
+      </div>
+      <div class="col concept">
+        <h3><i>✎</i>Concept, labelled on screen</h3>
+        <ul>
+          <li>Wild Points, levels, streaks, badges and the shareholder vote</li>
+          <li>Personal and company "m² restored" figures</li>
+          <li>Events, Chris's weekly challenge and the refer-a-friend offer</li>
+          <li>Sample members, sightings and the two fictional companies</li>
+          <li>Business plan prices (shown as indicative) and the ESG certificate</li>
+          <li>Everything marked "Idea" in the portal's Impact & ESG section</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note">Built as a working web app: no accounts, no payments, nothing sent anywhere. Photos and footage are Ecotalk's own, used to illustrate. A production version would sit on Ecotalk's billing and network platform.</p>
+  </div>
+</section>
+<div class="foot">Concept by Dan Jones · not a live Ecotalk product</div>
+
+<div class="sim" id="sim" aria-hidden="true">
+  <div class="sim-bar">
+    <div class="seg" id="seg">
+      <button data-d="land" class="on">iPad landscape</button>
+      <button data-d="port">iPad portrait</button>
+      <button data-d="phone">Phone</button>
+    </div>
+    <div class="r">
+      <a class="btn" href="business.html">Business portal →</a>
+      <a class="btn" href="app.html" target="_blank" rel="noopener">Full screen ↗</a>
+      <button class="btn lime" id="simClose">✕ Close</button>
+    </div>
+  </div>
+  <div class="stage" id="stage">
+    <div class="device" id="device"><iframe id="frame" title="Ecotalk Wild members' app" allow="camera; clipboard-write; web-share; autoplay; fullscreen"></iframe></div>
+    <div class="hint">Click and scroll as you would tap and swipe. Esc to close.</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const img = document.getElementById("bgimg");
+  img.onload = () => img.classList.add("on");
+  img.src = "https://www.datocms-assets.com/161871/1753171722-ecotalk-smallcarousel-one-bowyers1.jpg?w=2000&auto=format&fit=max";
+  const logo = new Image(); logo.onload = () => { document.getElementById("word").innerHTML = `<img src="assets/logo_white.png" alt="Ecotalk" style="height:30px">`; }; logo.src = "assets/logo_white.png";
+
+  const DEV = { land: [1180, 820, ""], port: [820, 1180, ""], phone: [390, 844, "phone"] };
+  const sim = document.getElementById("sim"), dev = document.getElementById("device"), frame = document.getElementById("frame"), stage = document.getElementById("stage");
+  let cur = "land";
+  const small = () => matchMedia("(max-width: 1000px), (pointer: coarse) and (max-width: 1400px)").matches;
+  if (small()) { document.getElementById("appGo").textContent = "Open the app →"; }
+  function fit() {
+    const [w, h, cls] = DEV[cur];
+    dev.className = "device " + cls;
+    frame.style.width = w + "px"; frame.style.height = h + "px";
+    const pad = cls ? 28 : 36;
+    const sw = stage.clientWidth - 32, sh = stage.clientHeight - 40;
+    const k = Math.min(1, sw / (w + pad), sh / (h + pad));
+    dev.style.transform = `scale(${k})`;
+    dev.style.margin = `${-(1 - k) * (h + pad) / 2}px ${-(1 - k) * (w + pad) / 2}px`;
+  }
+  function open() {
+    if (small()) { location.href = "app.html"; return; }
+    if (!frame.src) frame.src = "app.html";
+    sim.classList.add("open"); sim.setAttribute("aria-hidden", "false"); document.body.style.overflow = "hidden";
+    requestAnimationFrame(fit);
+  }
+  function close() { sim.classList.remove("open"); sim.setAttribute("aria-hidden", "true"); document.body.style.overflow = ""; }
+  document.getElementById("openApp").addEventListener("click", open);
+  document.getElementById("simClose").addEventListener("click", close);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+  document.getElementById("seg").addEventListener("click", e => {
+    const b = e.target.closest("[data-d]"); if (!b) return;
+    cur = b.dataset.d; document.querySelectorAll("#seg button").forEach(x => x.classList.toggle("on", x === b)); fit();
+  });
+  addEventListener("resize", () => sim.classList.contains("open") && fit());
+  if (location.hash === "#app") open();
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+})();
+</script>
+</body>
+</html>

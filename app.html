@@ -1,0 +1,1368 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ecotalk Wild</title>
+<meta name="description" content="Ecotalk Wild: a concept members' app by Dan Jones. Not a live Ecotalk product.">
+<meta name="theme-color" content="#212F17">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ecotalk Wild">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<style>
+@font-face{font-family:"Borna";src:url("assets/BornaMedium.otf") format("opentype");font-weight:500;font-display:swap}
+:root{
+  --forest:#212F17;--forest-2:#2C3D20;--forest-3:#3A5029;
+  --lime:#AEF009;--mint:#D7F8EB;--off:#F5F9F1;--slate:#354E5A;--cyan:#00FFEE;
+  --ink:#212F17;--muted:#5d6b63;--line:rgba(33,47,23,.12);
+  --r:16px;--r-lg:24px;--ease:cubic-bezier(.2,.8,.2,1);
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
+  --tab-h:72px;--gutter:clamp(16px,3vw,32px);
+  font-family:"Borna",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--off);color:var(--ink)}
+body{overflow:hidden;font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+img{display:block;max-width:100%}
+h1,h2,h3{font-weight:500;letter-spacing:-.01em;line-height:1.1}
+a{color:inherit}
+
+/* ---------- photo layers with graceful fallback ---------- */
+.ph{position:relative;overflow:hidden;background-color:var(--forest-2);background-size:cover;background-position:center}
+.ph::before{content:"";position:absolute;inset:0;background-image:var(--fallback);background-size:cover;z-index:0;transition:opacity .4s}
+.ph.loaded::before{opacity:0}
+.ph .img{position:absolute;inset:0;background-size:cover;background-position:var(--pos,center);opacity:0;transition:opacity .5s var(--ease);z-index:0}
+.ph.loaded .img{opacity:1}
+.ph > :not(.img):not(.contour):not(.scrim):not(video){position:relative;z-index:1}
+.t-water{--fallback:radial-gradient(120% 80% at 20% 110%,#5f8f7a 0,transparent 60%),radial-gradient(90% 70% at 90% 0%,#3f6b52 0,transparent 60%),linear-gradient(160deg,#2c4a3a,#1c2b1f)}
+.t-wood{--fallback:radial-gradient(100% 70% at 80% 100%,#6f8a3a 0,transparent 60%),radial-gradient(80% 80% at 10% 0%,#4a6b2c 0,transparent 55%),linear-gradient(170deg,#344d22,#1d2a14)}
+.t-dusk{--fallback:radial-gradient(90% 70% at 70% 0%,#5b5a7a 0,transparent 60%),radial-gradient(90% 90% at 0% 100%,#3a4a3c 0,transparent 60%),linear-gradient(170deg,#2f3644,#1b2219)}
+.t-gold{--fallback:radial-gradient(100% 80% at 80% 100%,#a8913f 0,transparent 55%),radial-gradient(70% 70% at 0% 0%,#5f7a35 0,transparent 60%),linear-gradient(160deg,#4b5a2a,#232f17)}
+.t-wet{--fallback:radial-gradient(100% 70% at 10% 100%,#4f9a8d 0,transparent 55%),radial-gradient(90% 70% at 100% 0%,#89a85a 0,transparent 60%),linear-gradient(160deg,#335a4f,#1d2c1f)}
+.contour{position:absolute;inset:0;opacity:.14;z-index:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240'%3E%3Cg fill='none' stroke='%23AEF009' stroke-width='1'%3E%3Cpath d='M-20 60 Q60 20 120 60 T260 60'/%3E%3Cpath d='M-20 100 Q60 60 120 100 T260 100'/%3E%3Cpath d='M-20 140 Q60 100 120 140 T260 140'/%3E%3Cpath d='M-20 180 Q60 140 120 180 T260 180'/%3E%3Cpath d='M-20 220 Q60 180 120 220 T260 220'/%3E%3C/g%3E%3C/svg%3E")}
+.ph.loaded .contour{display:none}
+.scrim{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(20,30,14,.05) 0,rgba(20,30,14,.25) 45%,rgba(20,30,14,.85) 100%)}
+
+/* ---------- shell ---------- */
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+.topbar{position:absolute;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
+  padding:calc(var(--safe-t) + 12px) var(--gutter) 12px;pointer-events:none;transition:background .25s,box-shadow .25s}
+.topbar > *{pointer-events:auto}
+.topbar.solid{background:rgba(33,47,23,.94);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.logo{height:30px;display:flex;align-items:center;gap:8px;color:var(--off);font-size:22px;letter-spacing:-.02em}
+.logo img{height:30px;width:auto}
+.logo .word b{color:var(--lime);font-weight:500}
+.top-actions{display:flex;gap:10px;align-items:center}
+.points{display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:99px;background:rgba(33,47,23,.7);color:var(--off);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(174,240,9,.35);font-size:15px}
+.points b{color:var(--lime);font-weight:500;font-variant-numeric:tabular-nums}
+.points.bump{animation:bump .5s var(--ease)}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--lime);color:var(--forest);display:grid;place-items:center;font-size:17px}
+
+.views{flex:1;position:relative;overflow:hidden}
+.view{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  padding-bottom:calc(var(--tab-h) + var(--safe-b) + 24px);opacity:0;transform:translateY(12px);pointer-events:none;
+  transition:opacity .28s var(--ease),transform .28s var(--ease)}
+.view.active{opacity:1;transform:none;pointer-events:auto}
+.wrap{max-width:1120px;margin:0 auto;padding:0 var(--gutter)}
+.page-head{padding:calc(var(--safe-t) + 84px) 0 8px}
+.page-head .eyebrow{color:var(--slate)}
+.page-head h1{font-size:clamp(32px,4.6vw,48px);margin-top:4px}
+.page-head p{color:var(--slate);max-width:640px;margin-top:8px}
+section{margin-top:36px}
+.sec-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}
+.sec-head h2{font-size:clamp(22px,2.6vw,28px)}
+.eyebrow{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate)}
+.muted{color:var(--muted)}
+.footer{text-align:center;font-size:12px;color:var(--muted);padding:32px var(--gutter) 8px}
+
+/* tab bar */
+.tabbar{position:absolute;left:0;right:0;bottom:0;z-index:30;height:calc(var(--tab-h) + var(--safe-b));padding-bottom:var(--safe-b);
+  background:rgba(33,47,23,.96);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;justify-content:center;border-top:1px solid rgba(174,240,9,.12)}
+.tabbar .inner{display:flex;width:100%;max-width:720px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:rgba(245,249,241,.6);font-size:12px;min-height:56px;position:relative;transition:color .2s}
+.tab svg{width:26px;height:26px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s var(--ease)}
+.tab.active{color:var(--lime)}
+.tab.active svg{transform:translateY(-2px) scale(1.06)}
+.tab.active::after{content:"";position:absolute;top:6px;width:4px;height:4px;border-radius:50%;background:var(--lime)}
+.tab:active svg{transform:scale(.9)}
+
+/* buttons, chips, cards */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:0 24px;border-radius:99px;
+  background:var(--lime);color:var(--forest);font-size:17px;transition:transform .15s var(--ease),filter .2s,background .2s;user-select:none}
+.btn:active{transform:scale(.96)}
+.btn.dark{background:var(--forest);color:var(--off)}
+.btn.ghost{background:transparent;border:1.5px solid currentColor}
+.btn.block{width:100%}
+.btn.small{min-height:44px;padding:0 18px;font-size:15px}
+.btn.done{background:var(--mint);color:var(--forest)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:99px;border:1.5px solid var(--line);background:#fff;font-size:15px;white-space:nowrap;transition:all .2s var(--ease)}
+.chip.on{background:var(--forest);color:var(--lime);border-color:var(--forest)}
+.chip:active{transform:scale(.95)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin:0 calc(var(--gutter) * -1);padding-left:var(--gutter);padding-right:var(--gutter)}
+.chips.scroll::-webkit-scrollbar{display:none}
+.card{background:#fff;border-radius:var(--r);border:1px solid var(--line);padding:20px}
+.card.mint{background:var(--mint);border-color:transparent}
+.card.dark{background:var(--forest);color:var(--off);border-color:transparent}
+.card.tap{transition:transform .2s var(--ease),box-shadow .2s}
+.card.tap:active{transform:scale(.98)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:99px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;background:var(--lime);color:var(--forest)}
+.badge.live{background:var(--cyan);color:var(--forest)}
+.badge.glass{background:rgba(245,249,241,.16);color:var(--off);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.badge.concept{background:rgba(53,78,90,.1);color:var(--slate)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--forest);animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(33,47,23,.6)}70%{box-shadow:0 0 0 8px rgba(33,47,23,0)}100%{box-shadow:0 0 0 0 rgba(33,47,23,0)}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes kenburns{0%{transform:scale(1.02) translate(0,0)}100%{transform:scale(1.14) translate(-2%,-2%)}}
+@keyframes bounce{0%{transform:translateY(0) scale(.6);opacity:0}30%{transform:translateY(-30px) scale(1.15);opacity:1}55%{transform:translateY(0) scale(1)}72%{transform:translateY(-10px)}100%{transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------- HOME ---------- */
+.hero{height:min(62vh,520px);min-height:380px;border-radius:0 0 var(--r-lg) var(--r-lg);color:var(--off);display:flex;align-items:flex-end}
+.hero .img{animation:kenburns 24s ease-in-out infinite alternate}
+.hero .content{width:100%;padding:0 var(--gutter) 92px;max-width:1120px;margin:0 auto}
+.hero h1{font-size:clamp(40px,6vw,68px)}
+.hero p{font-size:clamp(17px,1.8vw,21px);max-width:620px;margin-top:10px;opacity:.92}
+.hero .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.live-pill{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 18px 0 8px;border-radius:99px;background:rgba(245,249,241,.14);border:1px solid rgba(245,249,241,.3);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);font-size:16px}
+.live-pill .badge{padding:5px 9px}
+
+.impact{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-top:-56px;position:relative;z-index:2}
+.impact .you{background:var(--forest);color:var(--off);border-radius:var(--r-lg);padding:24px;position:relative;overflow:hidden;box-shadow:0 20px 40px -20px rgba(33,47,23,.5)}
+.big{font-size:clamp(48px,7vw,80px);line-height:1;color:var(--lime);font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.big small{font-size:.4em;color:var(--off);margin-left:4px;letter-spacing:0}
+.impact .you p{opacity:.85;margin-top:8px;max-width:420px}
+.leafbar{height:8px;border-radius:99px;background:rgba(245,249,241,.12);margin-top:18px;overflow:hidden}
+.leafbar i{display:block;height:100%;width:0;background:var(--lime);border-radius:99px;transition:width 1.6s var(--ease)}
+.impact .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;justify-content:space-between;min-height:110px}
+.stat .n{font-size:clamp(28px,3.4vw,36px);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.stat .l{font-size:14px;color:var(--slate);line-height:1.3}
+
+.carousel{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(280px,38%);gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+  margin:0 calc(var(--gutter) * -1);padding:4px var(--gutter) 8px}
+.carousel::-webkit-scrollbar{display:none}
+.story{scroll-snap-align:start;border-radius:var(--r);height:340px;color:var(--off);display:flex;flex-direction:column;justify-content:flex-end;padding:18px;text-align:left;transition:transform .2s var(--ease)}
+.story:active{transform:scale(.97)}
+.story h3{font-size:22px;margin-top:8px}
+.story p{font-size:14px;opacity:.88;margin-top:6px}
+
+.voices{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.voice{border-radius:var(--r-lg);overflow:hidden;display:grid;grid-template-columns:42% 1fr;min-height:260px;text-align:left}
+.voice .ph{min-height:220px}
+.voice .body{padding:22px;display:flex;flex-direction:column;gap:10px}
+.voice .who{font-size:13px;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.voice h3{font-size:24px}
+.voice blockquote{font-size:18px;line-height:1.35;border-left:3px solid var(--lime);padding-left:12px}
+.voice.c1{background:var(--forest);color:var(--off)}
+.voice.c2{background:var(--mint)}
+.play-note{display:flex;align-items:center;gap:12px;min-height:52px;margin-top:auto}
+.play-note .pbtn{width:52px;height:52px;border-radius:50%;background:var(--lime);color:var(--forest);display:grid;place-items:center;flex:none}
+.play-note .wave{flex:1;height:28px;display:flex;align-items:center;gap:3px}
+.play-note .wave i{flex:1;background:currentColor;opacity:.35;border-radius:2px;height:30%;transition:height .2s}
+.play-note.playing .wave i{opacity:.9;animation:wave 1s ease-in-out infinite}
+@keyframes wave{0%,100%{height:20%}50%{height:100%}}
+
+.plan-card{display:flex;align-items:center;gap:20px}
+.ring{width:96px;height:96px;flex:none;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .v{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-size:18px;line-height:1}
+.ring .v small{display:block;font-size:11px;color:var(--slate);margin-top:2px}
+.ring circle{transition:stroke-dashoffset 1.4s var(--ease)}
+
+.fab{position:absolute;right:var(--gutter);bottom:calc(var(--tab-h) + var(--safe-b) + 16px);z-index:25;display:flex;align-items:center;gap:10px;min-height:56px;padding:0 22px 0 18px;border-radius:99px;
+  background:var(--lime);color:var(--forest);box-shadow:0 12px 28px -8px rgba(33,47,23,.55);font-size:17px;transition:transform .25s var(--ease),opacity .25s}
+.fab.hide{opacity:0;transform:translateY(20px) scale(.9);pointer-events:none}
+.fab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ---------- WATCH ---------- */
+.livecam{border-radius:var(--r-lg);height:min(52vh,460px);min-height:300px;color:var(--off);display:flex;flex-direction:column;justify-content:space-between;padding:20px;cursor:pointer}
+.livecam .img{animation:kenburns 30s ease-in-out infinite alternate}
+.livecam video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.livecam .bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.livecam h2{font-size:clamp(26px,3.4vw,38px)}
+.livecam .bigplay{width:72px;height:72px;border-radius:50%;background:var(--lime);color:var(--forest);display:grid;place-items:center;flex:none;transition:transform .2s}
+.livecam:active .bigplay{transform:scale(.92)}
+.filters{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.filters .lbl{font-size:13px;color:var(--slate);margin-right:4px;align-self:center}
+.cams{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:20px}
+.cam{border-radius:var(--r);overflow:hidden;background:#fff;border:1px solid var(--line);text-align:left;transition:transform .2s var(--ease),opacity .25s}
+.cam:active{transform:scale(.97)}
+.cam .ph{aspect-ratio:16/10;display:flex;align-items:flex-start;justify-content:space-between;padding:10px;color:var(--off)}
+.cam .ph .pl{position:absolute;right:12px;bottom:12px;width:44px;height:44px;border-radius:50%;background:rgba(33,47,23,.75);display:grid;place-items:center;color:var(--lime);z-index:1}
+.cam .meta{padding:14px 16px 16px}
+.cam .meta h3{font-size:18px}
+.cam .meta p{font-size:14px;color:var(--slate);margin-top:4px}
+.cam.gone{display:none}
+.empty{padding:40px;text-align:center;color:var(--slate)}
+
+/* ---------- SPOT ---------- */
+.spot-hero{border-radius:var(--r-lg);padding:28px;color:var(--off);display:grid;grid-template-columns:1.2fr 1fr;gap:24px;align-items:center;min-height:300px}
+.spot-hero h2{font-size:clamp(28px,3.6vw,42px)}
+.spot-hero p{opacity:.88;margin-top:10px}
+.spot-btn{position:relative;overflow:hidden;width:100%;min-height:150px;border-radius:var(--r-lg);background:var(--lime);color:var(--forest);font-size:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:transform .2s var(--ease)}
+.spot-btn:active{transform:scale(.97)}
+.spot-btn svg{width:44px;height:44px;stroke:currentColor;fill:none;stroke-width:1.8}
+.spot-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:200px}
+.challenge{display:flex;gap:16px;align-items:center}
+.challenge .ico{width:56px;height:56px;border-radius:16px;background:var(--forest);color:var(--lime);display:grid;place-items:center;font-size:26px;flex:none}
+.wall{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.sight{border-radius:var(--r);overflow:hidden;background:#fff;border:1px solid var(--line);animation:fadeUp .4s var(--ease) both}
+.sight .ph{aspect-ratio:1/1}
+.sight .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.sight .meta{padding:10px 12px 12px;font-size:14px}
+.sight .meta b{font-weight:500;display:block;font-size:15px}
+.sight .meta span{color:var(--slate);font-size:13px}
+.sight.mine{outline:3px solid var(--lime);outline-offset:-3px}
+
+/* ---------- RESERVES ---------- */
+.sites{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+.mapbox{border-radius:var(--r-lg);position:relative;overflow:hidden;background:var(--mint);min-height:360px}
+.mapbox img.map{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:16px}
+.mapbox svg.gb{position:absolute;inset:0;width:100%;height:100%}
+.maplab{position:absolute;transform:translate(-50%,-50%);font-size:14px;color:var(--slate);white-space:nowrap;pointer-events:none}
+.maplab.cap{font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.pin{position:absolute;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:6px;z-index:2}
+.pin .lab{background:var(--forest);color:var(--off);border-radius:99px;padding:8px 14px;font-size:14px;white-space:nowrap;box-shadow:0 6px 16px -6px rgba(0,0,0,.4);min-height:40px;display:flex;align-items:center}
+.pin .lab b{color:var(--lime);font-weight:500;margin-right:6px}
+.pin .stem{width:16px;height:16px;border-radius:50%;background:var(--lime);border:3px solid var(--forest);position:relative}
+.pin .stem::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--forest);opacity:.4;animation:ping 2s infinite}
+@keyframes ping{0%{transform:scale(.6);opacity:.6}100%{transform:scale(1.8);opacity:0}}
+.pin.on .lab{background:var(--lime);color:var(--forest)}
+.pin.on .lab b{color:var(--forest)}
+.site-card{border-radius:var(--r-lg);overflow:hidden;background:#fff;border:1px solid var(--line);display:flex;flex-direction:column}
+.site-card .ph{height:200px;color:var(--off);padding:16px;display:flex;align-items:flex-end}
+.site-card .ph h3{font-size:30px}
+.site-card .body{padding:20px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .35s var(--ease)}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.fact{background:var(--off);border-radius:12px;padding:12px}
+.fact b{display:block;font-size:24px;font-weight:500;letter-spacing:-.02em}
+.fact span{font-size:12px;color:var(--slate);line-height:1.2;display:block}
+.who-lives{display:flex;flex-wrap:wrap;gap:6px}
+.who-lives span{background:var(--mint);border-radius:99px;padding:6px 12px;font-size:14px}
+.event{display:flex;gap:16px;align-items:center}
+.event .date{width:68px;flex:none;border-radius:14px;background:var(--forest);color:var(--off);text-align:center;padding:10px 0;line-height:1.05}
+.event .date b{display:block;font-size:26px;font-weight:500;color:var(--lime)}
+.event .date span{font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.event .info{flex:1;min-width:0}
+.event h3{font-size:19px}
+.event p{font-size:14px;color:var(--slate);margin-top:2px}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.field label{font-size:14px;color:var(--slate)}
+.field input,.field textarea,.field select{min-height:50px;border-radius:12px;border:1.5px solid var(--line);background:#fff;padding:12px 14px;font-size:16px;outline:none;transition:border .2s}
+.field input:focus,.field textarea:focus{border-color:var(--forest)}
+.field textarea{min-height:90px;resize:vertical}
+
+/* ---------- IMPACT ---------- */
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;gap:10px}
+.flow .node{background:#fff;border-radius:var(--r);border:1px solid var(--line);padding:18px;text-align:center;min-height:132px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.flow .node .e{font-size:30px}
+.flow .node h3{font-size:18px}
+.flow .node p{font-size:13px;color:var(--slate)}
+.flow .node.hi{background:var(--forest);color:var(--off);border-color:transparent}
+.flow .node.hi p{color:rgba(245,249,241,.75)}
+.flow .arr{color:var(--forest);font-size:24px}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.member{border-radius:var(--r);overflow:hidden;background:#fff;border:1px solid var(--line);text-align:left;transition:transform .2s var(--ease)}
+.member:active{transform:scale(.97)}
+.member .ph{aspect-ratio:4/3;display:flex;align-items:flex-end;padding:10px;color:var(--off)}
+.member .meta{padding:12px 14px 14px}
+.member .meta b{font-weight:500;display:block;font-size:17px}
+.member .meta i{color:var(--slate);font-size:13px}
+.vote-opt{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:12px 16px;border-radius:14px;border:1.5px solid var(--line);background:#fff;text-align:left;position:relative;overflow:hidden;transition:border .2s}
+.vote-opt + .vote-opt{margin-top:10px}
+.vote-opt .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--mint);transition:width 1s var(--ease);z-index:0}
+.vote-opt > *:not(.fill){position:relative;z-index:1}
+.vote-opt .e{font-size:24px}
+.vote-opt .t{flex:1}
+.vote-opt .t b{font-weight:500;display:block}
+.vote-opt .t span{font-size:13px;color:var(--slate)}
+.vote-opt .pct{font-variant-numeric:tabular-nums;font-size:18px;opacity:0;transition:opacity .4s}
+.voted .vote-opt .pct{opacity:1}
+.vote-opt.mine{border-color:var(--forest)}
+.vote-opt.mine .fill{background:var(--lime)}
+.timeline{position:relative;padding-left:28px}
+.timeline::before{content:"";position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.tl{position:relative;padding:0 0 22px}
+.tl::before{content:"";position:absolute;left:-26px;top:5px;width:14px;height:14px;border-radius:50%;background:var(--off);border:3px solid var(--forest)}
+.tl.now::before{background:var(--lime)}
+.tl .when{font-size:13px;color:var(--slate);letter-spacing:.04em;text-transform:uppercase}
+.tl b{font-weight:500;display:block;font-size:18px;margin-top:2px}
+.tl p{font-size:14px;color:var(--slate)}
+.badges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.bdg{text-align:center;padding:16px 10px;border-radius:var(--r);background:#fff;border:1px solid var(--line)}
+.bdg .e{width:60px;height:60px;margin:0 auto 8px;border-radius:50%;display:grid;place-items:center;font-size:28px;background:var(--mint)}
+.bdg.locked{opacity:.45}
+.bdg.locked .e{filter:grayscale(1)}
+.bdg b{font-weight:500;font-size:15px;display:block}
+.bdg span{font-size:12px;color:var(--slate)}
+
+/* ---------- sheets & overlays ---------- */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(15,22,10,.5);opacity:0;pointer-events:none;transition:opacity .25s}
+.overlay.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;z-index:60;left:50%;bottom:0;width:min(720px,100%);max-height:92vh;overflow-y:auto;background:var(--off);border-radius:var(--r-lg) var(--r-lg) 0 0;
+  transform:translate(-50%,105%);transition:transform .32s var(--ease);padding-bottom:calc(var(--safe-b) + 24px)}
+.sheet.open{transform:translate(-50%,0)}
+.sheet .grab{width:44px;height:5px;border-radius:9px;background:rgba(33,47,23,.2);margin:10px auto 0}
+.sheet .x{position:absolute;right:14px;top:14px;width:44px;height:44px;border-radius:50%;background:rgba(33,47,23,.65);color:var(--off);display:grid;place-items:center;z-index:5;font-size:20px}
+.sheet .sh-img{height:260px;margin:0 0 0;color:var(--off);display:flex;align-items:flex-end;padding:20px}
+.sheet .sh-body{padding:22px var(--gutter) 0}
+.sheet h2{font-size:28px}
+.sheet .sh-body p{margin-top:10px;color:#3c4a40}
+.sheet .sh-body .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.success{text-align:center;padding:28px 10px 8px}
+.success .beaver{font-size:72px;display:inline-block;animation:bounce .9s var(--ease) both}
+.success h2{margin-top:6px}
+.success p{color:var(--slate);margin-top:6px}
+
+.player{position:fixed;inset:0;z-index:70;background:#0c120a;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .25s}
+.player.open{opacity:1;pointer-events:auto}
+.player .stage{flex:1;position:relative;display:grid;place-items:center;overflow:hidden}
+.player iframe,.player video{width:100%;height:100%;border:0;position:absolute;inset:0;background:#000}
+.player .ph{position:absolute;inset:0}
+.player .ph .img{animation:kenburns 20s ease-in-out infinite alternate}
+.player .cap{color:var(--off);padding:16px var(--gutter) calc(var(--safe-b) + 16px);display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:#0c120a}
+.player .cap h3{font-size:22px}
+.player .cap p{opacity:.7;font-size:14px}
+.player .x{position:absolute;top:calc(var(--safe-t) + 14px);right:14px;z-index:5;width:48px;height:48px;border-radius:50%;background:rgba(245,249,241,.15);color:var(--off);display:grid;place-items:center;font-size:22px;backdrop-filter:blur(8px)}
+.player .offline-note{position:relative;z-index:2;color:var(--off);text-align:center;padding:20px;max-width:440px}
+.player .offline-note .badge{margin-bottom:12px}
+
+.toast{position:fixed;left:50%;top:calc(var(--safe-t) + 78px);transform:translate(-50%,-20px);z-index:90;background:var(--forest);color:var(--off);padding:14px 22px;border-radius:99px;
+  opacity:0;pointer-events:none;transition:all .3s var(--ease);display:flex;gap:10px;align-items:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);max-width:calc(100% - 32px);font-size:15px}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast b{color:var(--lime);font-weight:500}
+.burst{position:fixed;inset:0;pointer-events:none;z-index:95;overflow:hidden}
+.burst i{position:absolute;font-style:normal;font-size:26px;will-change:transform,opacity}
+
+.chat{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.msg{max-width:82%;padding:12px 16px;border-radius:18px;font-size:15px;animation:fadeUp .3s var(--ease) both}
+.msg.them{background:#fff;border:1px solid var(--line);border-bottom-left-radius:6px}
+.msg.me{background:var(--forest);color:var(--off);align-self:flex-end;border-bottom-right-radius:6px}
+.msg small{display:block;font-size:11px;opacity:.6;margin-top:4px}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plan{border:1.5px solid var(--line);border-radius:14px;padding:14px;text-align:left;background:#fff;min-height:84px;transition:all .2s}
+.plan.on{border-color:var(--forest);background:var(--mint)}
+.plan b{font-weight:500;font-size:20px;display:block}
+.plan span{font-size:14px;color:var(--slate)}
+.topups{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.topups .btn{flex-direction:column;gap:0;min-height:72px;border-radius:14px;line-height:1.1}
+.topups .btn small{font-size:13px;opacity:.75}
+.nopr{display:inline-flex;align-items:center;gap:8px;background:var(--lime);color:var(--forest);padding:8px 14px;border-radius:99px;font-size:14px}
+
+/* stories (tap-through, Instagram-style) */
+.rings{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--gutter) * -1);padding:4px var(--gutter) 6px}
+.rings::-webkit-scrollbar{display:none}
+.ring-btn{display:flex;flex-direction:column;align-items:center;gap:8px;flex:none;width:84px;font-size:13px;text-align:center;line-height:1.2}
+.ring-btn .halo{width:80px;height:80px;border-radius:50%;padding:3px;background:conic-gradient(var(--lime),#7fd34a,var(--cyan),var(--lime));transition:transform .2s var(--ease)}
+.ring-btn.seen .halo{background:#c9d3c4}
+.ring-btn:active .halo{transform:scale(.92)}
+.ring-btn .ph{width:100%;height:100%;border-radius:50%;border:3px solid var(--off);display:grid;place-items:center;font-size:30px}
+.viewer{position:fixed;inset:0;z-index:80;background:#0c120a;opacity:0;pointer-events:none;transition:opacity .25s}
+.viewer.open{opacity:1;pointer-events:auto}
+.viewer .frame{position:absolute;inset:0;margin:auto;max-width:560px;color:var(--off);overflow:hidden}
+@media (min-width:721px){.viewer .frame{top:24px;bottom:24px;border-radius:24px}}
+.viewer .frame > .ph{position:absolute;inset:0}
+.viewer .frame > .ph .img{animation:kenburns 9s ease-out forwards}
+.viewer .bars{position:absolute;top:calc(var(--safe-t) + 12px);left:12px;right:12px;display:flex;gap:4px;z-index:3}
+.viewer .bars i{flex:1;height:3px;border-radius:3px;background:rgba(245,249,241,.3);overflow:hidden}
+.viewer .bars i b{display:block;height:100%;width:0;background:var(--off)}
+.viewer .head{position:absolute;top:calc(var(--safe-t) + 26px);left:14px;right:14px;display:flex;align-items:center;gap:10px;z-index:3;font-size:15px}
+.viewer .head .mini{width:36px;height:36px;border-radius:50%;background:var(--lime);color:var(--forest);display:grid;place-items:center;font-size:18px}
+.viewer .head .close{margin-left:auto;width:44px;height:44px;border-radius:50%;background:rgba(245,249,241,.15);display:grid;place-items:center;font-size:20px}
+.viewer .copy{position:absolute;left:0;right:0;bottom:0;z-index:3;padding:24px 22px calc(var(--safe-b) + 32px);animation:fadeUp .4s var(--ease)}
+.viewer .copy h2{font-size:clamp(28px,4vw,36px)}
+.viewer .copy p{font-size:18px;opacity:.92;margin-top:10px}
+.viewer .tapL,.viewer .tapR{position:absolute;top:80px;bottom:0;z-index:2;width:40%}
+.viewer .tapL{left:0}.viewer .tapR{right:0;width:60%}
+
+/* level / streak, monthly report */
+.level{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center}
+.level .sprout{width:84px;height:84px;border-radius:22px;background:var(--lime);display:grid;place-items:center;font-size:42px}
+.level .steps{display:flex;gap:6px;margin-top:12px}
+.level .steps i{flex:1;height:8px;border-radius:9px;background:rgba(33,47,23,.12)}
+.level .steps i.on{background:var(--forest)}
+.level .steps i.half{background:linear-gradient(90deg,var(--forest) 60%,rgba(33,47,23,.12) 60%)}
+.streak{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap}
+.streak span{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:12px;background:var(--off);color:var(--slate)}
+.streak span.on{background:var(--forest);color:var(--lime)}
+.report .row{display:grid;grid-template-columns:minmax(140px,1.2fr) 2fr auto;gap:14px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.report .row:first-of-type{border-top:0}
+.report .bar{height:12px;border-radius:9px;background:var(--off);overflow:hidden}
+.report .bar i{display:block;height:100%;width:0;border-radius:9px;background:var(--forest);transition:width 1.4s var(--ease)}
+.report .row:nth-of-type(2) .bar i{background:#5a7a3a}
+.report .row:nth-of-type(3) .bar i{background:var(--slate)}
+.report .row:nth-of-type(4) .bar i{background:var(--lime)}
+.report .pc{font-variant-numeric:tabular-nums;min-width:42px;text-align:right}
+
+.esim-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;counter-reset:st}
+.esim-steps div{background:rgba(245,249,241,.08);border-radius:12px;padding:10px;position:relative}
+.esim-steps b{display:block;font-weight:500;color:var(--lime);font-size:15px}
+.esim-steps span{font-size:12px;opacity:.8}
+@media (max-width:720px){.esim-steps{grid-template-columns:1fr 1fr}}
+.footer a{color:inherit}
+
+/* ---------- responsive ---------- */
+@media (max-width:1000px){
+  .cams{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .board,.badges{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wall{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .voices{grid-template-columns:1fr}
+  .sites{grid-template-columns:1fr}
+  .carousel{grid-auto-columns:minmax(260px,60%)}
+}
+@media (max-width:720px){
+  :root{--tab-h:66px}
+  .impact{grid-template-columns:1fr;margin-top:-40px}
+  .hero .content{padding-bottom:68px}
+  .hero{height:auto;min-height:440px;padding-top:110px}
+  .spot-hero{grid-template-columns:1fr;padding:22px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+  .flow .arr{transform:rotate(90deg);justify-self:center}
+  .wall{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .cams{grid-template-columns:1fr}
+  .voice{grid-template-columns:1fr}
+  .voice .ph{min-height:180px}
+  .carousel{grid-auto-columns:82%}
+  .story{height:300px}
+  .points span.lbl{display:none}
+  .facts{grid-template-columns:repeat(3,1fr)}
+  .fact b{font-size:20px}
+  .mapbox{min-height:360px}
+  .event{flex-wrap:wrap}
+  .event .btn{width:100%}
+  .plan-card{flex-wrap:wrap}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar" id="topbar">
+    <div class="logo" id="logo"><span class="word">eco<b>talk</b> wild</span></div>
+    <div class="top-actions">
+      <button class="points" id="pointsPill" aria-label="Wild Points"><span>🌿</span><b id="points">120</b><span class="lbl">Wild Points</span></button>
+      <button class="avatar" data-open="me" aria-label="Your account">ST</button>
+    </div>
+  </header>
+
+  <main class="views">
+
+    <!-- ================= HOME ================= -->
+    <div class="view active" id="v-home" data-view="home">
+      <div class="hero ph t-water" data-src="assets/beaver_swim.jpg|assets/beaver_water.jpg|yt:wK1Fe6YuTdk">
+        <div class="img"></div><div class="contour"></div><div class="scrim"></div>
+        <div class="content">
+          <span class="badge glass">Bowyers Wood · East Sussex</span>
+          <h1 id="greeting" style="margin-top:12px">Morning, Sam</h1>
+          <p>Five beavers came home to Sussex this spring, the first in 400 years. Since then a kit has been born in the wood. Your phone bill helped.</p>
+          <div class="row">
+            <button class="live-pill" data-go="watch"><span class="badge live"><span class="dot"></span>Live</span>Chris's River Cam</button>
+            <button class="live-pill" data-story="dam">New: Dam Good News →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap">
+        <div class="impact">
+          <div class="you">
+            <div class="contour"></div>
+            <div style="position:relative">
+              <div class="eyebrow" style="color:rgba(245,249,241,.7)">Your wild this year</div>
+              <div class="big" style="margin-top:10px"><span id="youCount" data-count="4.183" data-dec="3">0</span><small>m² restored</small></div>
+              <p>Your share of Bowyers Wood, paid for by your bill. It grows a little every time you use your phone. Watch it tick.</p>
+              <div class="leafbar"><i data-bar="42"></i></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;opacity:.75;margin-top:8px"><span>42% to your next badge: Beaver Backer</span><span>Concept figure</span></div>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="n" data-count="3500">0</div><div class="l">trees planted at Downicary, Devon</div></div>
+            <div class="stat"><div class="n" data-count="9">0</div><div class="l">tawny owl chicks ringed this summer</div></div>
+            <div class="stat"><div class="n" data-count="37">0</div><div class="l">bird species recorded at Bowyers</div></div>
+            <div class="stat"><div class="n"><span data-count="3000">0</span>t</div><div class="l">of earth moved to build new habitats</div></div>
+          </div>
+        </div>
+
+        <section>
+          <div class="sec-head"><div><div class="eyebrow">Tap to watch</div><h2>Stories from the wild</h2></div></div>
+          <div class="rings" id="rings"></div>
+        </section>
+
+        <section>
+          <div class="sec-head"><div><div class="eyebrow">Fresh from the reserves</div><h2>This season on your land</h2></div></div>
+          <div class="carousel" id="stories"></div>
+        </section>
+
+        <section>
+          <div class="sec-head"><div><div class="eyebrow">The people behind it</div><h2>Chris and Dale</h2></div></div>
+          <div class="voices">
+            <div class="voice c1">
+              <div class="ph t-wood" data-src="assets/packham.jpg" style="--pos:center 25%"><div class="img"></div><div class="contour"></div></div>
+              <div class="body">
+                <div class="who">Chris Packham · Chief Ecologist</div>
+                <h3>Chris's October challenge</h3><span class="badge concept" style="background:rgba(245,249,241,.12);color:rgba(245,249,241,.75);align-self:flex-start;margin-top:-4px">Concept</span>
+                <p style="opacity:.88">Tawny owls are claiming territories now, so the woods are noisy after dark. Step outside after sunset this week and listen for the "kewick" call. Log it in Spot it for double points.</p>
+                <button class="play-note" id="chrisNote"><span class="pbtn"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span><span class="wave" aria-hidden="true"></span><span style="font-size:14px;opacity:.8">0:42</span></button>
+                <span class="badge concept" style="background:rgba(245,249,241,.12);color:rgba(245,249,241,.75);align-self:flex-start">Concept: monthly voice note</span>
+              </div>
+            </div>
+            <div class="voice c2">
+              <div class="ph t-gold" data-src="assets/dale.jpg|assets/downicary_stream.jpg" style="--pos:center 30%"><div class="img"></div><div class="contour"></div></div>
+              <div class="body">
+                <div class="who">Dale Vince · Founder</div>
+                <h3>Bills into Hills</h3>
+                <blockquote>Beavers are "the Swiss Army knife of re-wilding."</blockquote>
+                <p class="muted" style="font-size:15px">Dale started Ecotalk on a simple idea. Instead of paying shareholders, the profits from your bill buy and restore land in Britain.</p>
+                <button class="btn small dark" data-go="impact" style="align-self:flex-start;margin-top:auto">See where your bill goes</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="grid g2">
+            <button class="card tap plan-card" data-open="me" style="text-align:left">
+              <div class="ring">
+                <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="#D7F8EB" stroke-width="10"/><circle id="ringArc" cx="50" cy="50" r="42" fill="none" stroke="#212F17" stroke-width="10" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9"/></svg>
+                <div class="v"><span>18.4<small>GB used</small></span></div>
+              </div>
+              <div>
+                <div class="eyebrow">Your plan</div>
+                <h3 style="font-size:22px;margin-top:2px">Unlimited · £22 a month</h3>
+                <p class="muted" style="font-size:14px;margin-top:4px">Renews 1 Nov · UK-based support in Stroud</p>
+                <span class="nopr" style="margin-top:10px">✓ No price rises, ever</span>
+              </div>
+            </button>
+            <button class="card dark tap" data-open="share" style="text-align:left;position:relative;overflow:hidden">
+              <div class="contour"></div>
+              <div style="position:relative">
+                <div class="eyebrow" style="color:var(--lime)">Bring a friend · concept offer</div>
+                <h3 style="font-size:24px;margin-top:6px">Restore twice the land</h3>
+                <p style="opacity:.8;margin-top:6px;font-size:15px">When a friend switches, you both get £5 and your squares of woodland double up.</p>
+                <span class="btn small" style="margin-top:14px">Share your link</span>
+              </div>
+            </button>
+          </div>
+        </section>
+        <div class="footer">Concept by Dan Jones · not a live Ecotalk product · <a href="./" target="_top">About this concept</a></div>
+      </div>
+    </div>
+
+    <!-- ================= WATCH ================= -->
+    <div class="view" id="v-watch" data-view="watch">
+      <div class="wrap">
+        <div class="page-head">
+          <div class="eyebrow">Ecotalk NatureCams</div>
+          <h1>Watch the wild</h1>
+          <p>Live from Chris Packham's river and the camera traps on your reserves. Members see new footage first.</p>
+        </div>
+        <div class="livecam ph t-water" id="liveCam" data-src="assets/otter.jpg|yt:QlWLjFJpXMY" role="button" tabindex="0">
+          <div class="img"></div><div class="contour"></div><div class="scrim"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="badge live"><span class="dot"></span>Live</span><span class="badge glass">New Forest · 24/7</span></div>
+          <div class="bottom">
+            <div>
+              <h2>Chris Packham's River Cam</h2>
+              <p style="opacity:.85;margin-top:6px;max-width:520px">Front row at the water's edge in Chris's garden. Otters, herons and kingfishers could turn up at any moment.</p>
+            </div>
+            <span class="bigplay"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+          </div>
+        </div>
+
+        <div class="filters">
+          <div class="chips scroll" id="animalChips"></div>
+          <div class="chips scroll" id="siteChips"></div>
+        </div>
+        <div class="cams" id="cams"></div>
+        <div class="empty" id="camEmpty" hidden>Nothing here yet. Try another filter, the cameras are always rolling.</div>
+        <div class="footer">Concept by Dan Jones · not a live Ecotalk product · <a href="./" target="_top">About this concept</a></div>
+      </div>
+    </div>
+
+    <!-- ================= SPOT IT ================= -->
+    <div class="view" id="v-spot" data-view="spot">
+      <div class="wrap">
+        <div class="page-head">
+          <div class="eyebrow">Citizen science</div>
+          <h1>Spot it</h1>
+          <p>Every sighting helps the ecologists track what's coming back. Snap it, tag it, earn Wild Points.</p>
+        </div>
+        <div class="spot-hero ph t-wood" data-src="assets/wildflowers.jpg" style="--pos:center 60%">
+          <div class="img"></div><div class="contour"></div><div class="scrim" style="background:linear-gradient(90deg,rgba(20,30,14,.85),rgba(20,30,14,.35))"></div>
+          <div>
+            <span class="badge">+10 Wild Points per sighting</span>
+            <h2 style="margin-top:14px">Seen something wild?</h2>
+            <p>A heron in the park, a hedgehog in the garden, fungi on your walk. It all goes on the Ecotalk community map.</p>
+          </div>
+          <label class="spot-btn" id="spotBtn">
+            <svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Spot something wild
+            <input type="file" accept="image/*" capture="environment" id="camInput" aria-label="Take a photo">
+          </label>
+        </div>
+
+        <section>
+          <div class="grid g2">
+            <div class="card mint challenge">
+              <div class="ico">🦉</div>
+              <div><div class="eyebrow">Chris's challenge · this week · concept</div><b style="font-weight:500;font-size:18px">Hear a tawny owl</b><p class="muted" style="font-size:14px">Double points. 412 Ecotalkers have heard one so far.</p></div>
+            </div>
+            <div class="card challenge">
+              <div class="ico" style="background:var(--lime);color:var(--forest)">📈</div>
+              <div><div class="eyebrow">Species count this month</div><b style="font-weight:500;font-size:28px"><span data-count="1284" id="sightCount">0</span> sightings</b><p class="muted" style="font-size:14px">From 214 species across the UK</p></div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="sec-head"><div><div class="eyebrow">Shared by Ecotalkers</div><h2>Community sightings</h2></div><span class="badge concept">Sample data</span></div>
+          <div class="wall" id="wall"></div>
+        </section>
+        <div class="footer">Concept by Dan Jones · not a live Ecotalk product · <a href="./" target="_top">About this concept</a></div>
+      </div>
+    </div>
+
+    <!-- ================= RESERVES ================= -->
+    <div class="view" id="v-visit" data-view="visit">
+      <div class="wrap">
+        <div class="page-head">
+          <div class="eyebrow">Your land</div>
+          <h1>The reserves</h1>
+          <p>Two corners of Britain, owned by the Green Britain Foundation and paid for by Ecotalk customers. Tap a pin.</p>
+        </div>
+        <div class="sites">
+          <div class="mapbox" id="mapbox">
+            <svg class="gb" viewBox="0 0 400 300" preserveAspectRatio="none" id="gbSvg" aria-hidden="true">
+              <g fill="none" stroke="#212F17" stroke-opacity=".09" stroke-width="1.2">
+                <path vector-effect="non-scaling-stroke" d="M-10 40 Q100 10 200 40 T410 40"/><path d="M-10 80 Q100 50 200 80 T410 80"/><path d="M-10 120 Q100 90 200 120 T410 120"/>
+                <path d="M-10 160 Q100 130 200 160 T410 160"/><path d="M-10 200 Q100 170 200 200 T410 200"/><path d="M-10 240 Q100 210 200 240 T410 240"/><path d="M-10 280 Q100 250 200 280 T410 280"/>
+              </g>
+              <path d="M88 196 C150 120 240 120 296 150" fill="none" stroke="#212F17" stroke-width="2.5" stroke-dasharray="2 9" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+            </svg>
+            <span class="maplab" style="left:50%;top:22%">About 200 miles apart · one mission</span>
+            <span class="maplab cap" style="left:22%;top:80%">Devon</span>
+            <span class="maplab cap" style="left:74%;top:64%">East Sussex</span>
+            <div class="pin on" id="pin-bowyers" style="left:74%;top:50%"><button class="lab" data-site="bowyers"><b>●</b>Bowyers Wood</button><span class="stem"></span></div>
+            <div class="pin" id="pin-downicary" style="left:22%;top:65%"><button class="lab" data-site="downicary"><b>●</b>Downicary</button><span class="stem"></span></div>
+          </div>
+          <div class="site-card" id="siteCard"></div>
+        </div>
+
+        <section>
+          <div class="sec-head"><div><div class="eyebrow">Members only</div><h2>Get your boots muddy</h2></div><span class="badge concept">Concept events</span></div>
+          <div class="grid" style="gap:12px" id="events"></div>
+        </section>
+
+        <section>
+          <div class="card mint" id="awards">
+            <div class="eyebrow">Ecotalk Green Awards</div>
+            <h2 style="font-size:26px;margin-top:4px">Nominate a local green hero</h2>
+            <p class="muted" style="margin-top:6px">A school planting a meadow, a farmer leaving the hedges wild, a café that composts. Tell us who deserves a boost.</p>
+            <form id="awardForm" autocomplete="off">
+              <div class="grid g2" style="gap:0 16px">
+                <div class="field"><label for="aw-name">Who are you nominating?</label><input id="aw-name" required placeholder="e.g. Peasedown Primary eco club"></div>
+                <div class="field"><label>Category</label><div class="chips" id="awCats"></div></div>
+              </div>
+              <div class="field"><label for="aw-why">Why do they deserve it?</label><textarea id="aw-why" placeholder="A sentence or two is perfect"></textarea></div>
+              <button class="btn" type="submit" style="margin-top:16px">Send nomination</button>
+            </form>
+          </div>
+        </section>
+        <div class="footer">Concept by Dan Jones · not a live Ecotalk product · <a href="./" target="_top">About this concept</a></div>
+      </div>
+    </div>
+
+    <!-- ================= IMPACT ================= -->
+    <div class="view" id="v-impact" data-view="impact">
+      <div class="wrap">
+        <div class="page-head">
+          <div class="eyebrow">Bills into Hills</div>
+          <h1>Your bill at work</h1>
+          <p>Ecotalk has no shareholders taking dividends. The wildlife sits on the board, and you get a say in what happens next.</p>
+        </div>
+
+        <div class="flow">
+          <div class="node"><div class="e">📱</div><h3>You call, text, scroll</h3><p>Same coverage, no price rises</p></div>
+          <div class="arr">→</div>
+          <div class="node"><div class="e">🌳</div><h3>Profits buy land</h3><p>Through the Green Britain Foundation</p></div>
+          <div class="arr">→</div>
+          <div class="node hi"><div class="e">🦫</div><h3>Nature moves in</h3><p>Reintroduce · Rewild · Replant</p></div>
+        </div>
+
+        <section>
+          <div class="grid g2">
+            <div class="card">
+              <div class="level">
+                <div class="sprout">🌳</div>
+                <div>
+                  <div class="eyebrow">Your wild level</div>
+                  <h2 style="font-size:26px;margin-top:2px">Level 3 · Coppice</h2>
+                  <p class="muted" style="font-size:14px;margin-top:4px">380 points to Wildwood. Points unlock behind-the-scenes footage and early event booking. They aren't money.</p>
+                  <div class="steps"><i class="on"></i><i class="on"></i><i class="half"></i><i></i><i></i></div>
+                </div>
+              </div>
+              <div class="eyebrow" style="margin-top:18px">12-day wild streak</div>
+              <div class="streak" id="streak"></div>
+            </div>
+            <div class="card report" id="report">
+              <div style="display:flex;justify-content:space-between;gap:10px;align-items:start;flex-wrap:wrap">
+                <div><div class="eyebrow">September report</div><h2 style="font-size:24px;margin-top:2px">Where the money went</h2></div>
+                <span class="badge concept">Illustrative split</span>
+              </div>
+              <p class="muted" style="font-size:14px;margin:6px 0 8px">Published every month, in plain English, so you can see exactly what your bill paid for.</p>
+              <div class="row"><span>Earthworks, ponds and dams</span><span class="bar"><i data-bar="38"></i></span><span class="pc">38%</span></div>
+              <div class="row"><span>Trees and planting</span><span class="bar"><i data-bar="27"></i></span><span class="pc">27%</span></div>
+              <div class="row"><span>Surveys, cameras and ecologists</span><span class="bar"><i data-bar="22"></i></span><span class="pc">22%</span></div>
+              <div class="row"><span>Schools and volunteer days</span><span class="bar"><i data-bar="13"></i></span><span class="pc">13%</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="sec-head"><div><div class="eyebrow">Wildlife are our shareholders</div><h2>Meet the Board</h2></div></div>
+          <div class="board" id="board"></div>
+        </section>
+
+        <section>
+          <div class="card" id="voteCard">
+            <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:start">
+              <div><div class="eyebrow">Shareholder vote · closes 30 Nov</div><h2 style="font-size:26px;margin-top:4px">Where should the next £10,000 go?</h2></div>
+              <span class="badge concept">Concept</span>
+            </div>
+            <p class="muted" style="margin:6px 0 16px">Every member gets one vote. Results go to the team on site.</p>
+            <div id="voteOpts"></div>
+            <p class="muted" id="voteMsg" style="font-size:14px;margin-top:12px">2,318 members have voted.</p>
+          </div>
+        </section>
+
+        <section>
+          <div class="grid g2" style="align-items:start">
+            <div>
+              <div class="sec-head"><div><div class="eyebrow">What your bills have done</div><h2>The story so far</h2></div></div>
+              <div class="timeline" id="timeline"></div>
+            </div>
+            <div>
+              <div class="sec-head"><div><div class="eyebrow">Your badges</div><h2>Wild record</h2></div></div>
+              <div class="badges" id="badges"></div>
+              <div class="card dark" style="margin-top:14px;position:relative;overflow:hidden">
+                <div class="contour"></div>
+                <div style="position:relative">
+                  <div class="eyebrow" style="color:var(--lime)">Ecotalkers together</div>
+                  <div class="big" style="font-size:52px;margin-top:6px"><span data-count="12480">0</span><small>m² this month</small></div>
+                  <p style="opacity:.8;font-size:14px;margin-top:6px">Roughly 1.7 football pitches of rewilding. Concept figure.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <div class="footer">Concept by Dan Jones · not a live Ecotalk product · <a href="./" target="_top">About this concept</a></div>
+      </div>
+    </div>
+  </main>
+
+  <button class="fab" id="fab" data-open="share"><svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14" stroke-linecap="round" stroke-linejoin="round"/></svg>Share</button>
+
+  <nav class="tabbar" aria-label="Main">
+    <div class="inner">
+      <button class="tab active" data-go="home"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+      <button class="tab" data-go="watch"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg>Watch</button>
+      <button class="tab" data-go="spot"><svg viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h2l2-2h6l2 2h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></svg>Spot it</button>
+      <button class="tab" data-go="visit"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Reserves</button>
+      <button class="tab" data-go="impact"><svg viewBox="0 0 24 24"><path d="M12 22V12M12 12C12 7 8 4 3 4c0 5 4 8 9 8zM12 14c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg>Impact</button>
+    </div>
+  </nav>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"><div class="grab"></div><button class="x" id="sheetX" aria-label="Close">✕</button><div id="sheetBody"></div></div>
+<div class="player" id="player"><button class="x" id="playerX" aria-label="Close">✕</button><div class="stage" id="stage"></div><div class="cap" id="playerCap"></div></div>
+<div class="viewer" id="viewer"><div class="frame" id="vFrame"></div></div>
+<div class="toast" id="toast"></div>
+<div class="burst" id="burst"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const state = { points: 120, plan: "Unlimited", voted: null, spotted: 0, badges: new Set(["first", "owl"]) };
+
+/* ---------------- content (sourced from ecotalk.co.uk, Oct 2026) ---------------- */
+const STORIES = [
+  { id: "dam", date: "30 Sep 2026", tag: "Bowyers Wood", theme: "t-water", src: "assets/dam.jpg|yt:wK1Fe6YuTdk",
+    title: "Dam Good News", lede: "The drought dried up the streams. The beavers kept the water.",
+    body: "During one of the driest summers on record, the beaver dams at Bowyers Wood held water in the landscape while streams outside the enclosure shrank to a trickle. Pools stayed full and dragonfly larvae and fish had a refuge. The cameras also caught the whole family feeding together in daylight, and then a goshawk, which Chris called the \"Oscar of camera trapping\".",
+    url: "https://www.ecotalk.co.uk/community-stories/dam-good-news", yt: "wK1Fe6YuTdk" },
+  { id: "downicary", date: "28 Aug 2026", tag: "Downicary", theme: "t-wet", src: "assets/heatwave.jpg|yt:nU6pukLUAKc",
+    title: "Peak heatwave rewilding", lede: "A flat sheep field in Devon is turning into a wetland.",
+    body: "Chris and Tay checked on Downicary at the height of the heatwave. The young trees are winning: willow is pushing out new growth and the black poplars have shot up. The camera trap caught a kingfisher fishing a shrinking pool, roe deer, herons, foxes, mallard chicks and, after dark, an otter.",
+    url: "https://www.ecotalk.co.uk/community-stories/peak-heatwave-rewilding-how-nature-is-taking-shape-at-downicary", yt: "nU6pukLUAKc" },
+  { id: "oneyear", date: "13 Aug 2026", tag: "Both sites", theme: "t-gold", src: "assets/oneyear.jpg|yt:cZZI4Gh8mdI",
+    title: "One year on", lede: "3,500 trees, 3,000 tonnes of earth and the first beaver lodge.",
+    body: "A year in, local schoolchildren have helped plant 3,500 trees and shrubs across 55 acres at Downicary. At Bowyers, 18 rare black poplars are in the ground, 37 breeding bird species have been recorded and bat surveys have picked up the rare barbastelle. Then there's the headline: beavers, back after 400 years.",
+    url: "https://www.ecotalk.co.uk/community-stories/one-year-on-rewilding-two-corners-of-britain", yt: "cZZI4Gh8mdI" },
+  { id: "owls", date: "30 Jul 2026", tag: "Bowyers Wood", theme: "t-dusk", src: "assets/owl.jpg|yt:vw8wf-2NXOo",
+    title: "Inside the owl boxes: chicks!", lede: "Four in one box. Then a surprise: five in the next.",
+    body: "Chris and licensed bird ringer Jimmy Hill returned to the tawny owl boxes put up at Bowyers Wood. Two of the three were taken in their very first season. Nine chicks were weighed and ringed for the BTO. Jimmy had never ringed a brood of five tawny owls before, a sign the wood is full of voles and mice.",
+    url: "https://www.ecotalk.co.uk/community-stories/inside-the-owl-boxes-chicks", yt: "vw8wf-2NXOo" }
+];
+
+const CAMS = [
+  { yt: "QlWLjFJpXMY", month: "Sep 2026", title: "Chris Packham's LIVE River Camera", site: "chris", animals: ["otters", "birds"], desc: "Otters, herons and kingfishers, 24/7", theme: "t-water" },
+  { yt: "Y6epEkJmHFc", month: "Aug 2026", title: "Goshawk, Beaver & Buzzard", site: "bowyers", animals: ["beavers", "owls"], desc: "Three brilliant visitors on one perch", theme: "t-wood" },
+  { yt: "5a78euKWV6Y", month: "Jul 2026", title: "Deer Springs", site: "bowyers", animals: ["deer"], desc: "A heatwave drink, then a scamper", theme: "t-gold" },
+  { yt: "p6hsiI_l_L4", month: "Jun 2026", title: "Wildlife Highlights", site: "chris", animals: ["otters", "birds"], desc: "The best moments from Chris's river", theme: "t-water" },
+  { yt: "UHHLvG7qZns", month: "May 2026", title: "Busy Beavers", site: "bowyers", animals: ["beavers"], desc: "The new residents settle in, with carrots", theme: "t-water" },
+  { yt: "LjW3cGG81R8", month: "Apr 2026", title: "Mating Mallards", site: "downicary", animals: ["birds", "deer", "badgers"], desc: "A deer, a fox and a pair of mallards", theme: "t-wet" },
+  { yt: "BnhdVO9clYM", month: "Mar 2026", title: "Waterside Wanderers", site: "bowyers", animals: ["deer", "badgers"], desc: "Deer forage, then a nosy badger", theme: "t-wood" },
+  { yt: "apYIlcpKzKE", month: "Feb 2026", title: "Dawn to Dusk", site: "downicary", animals: ["deer", "badgers"], desc: "Deer by day, a fox after sunset", theme: "t-gold" },
+  { yt: "nD3sI9wdmf8", month: "Jan 2026", title: "Foraging Wildlife", site: "bowyers", animals: ["deer", "birds"], desc: "Robins singing, squirrels foraging", theme: "t-wood" },
+  { yt: "IojfopgF1t0", month: "Dec 2025", title: "Hungry Foxes", site: "downicary", animals: ["badgers", "deer"], desc: "Foxes give chase, badgers on their rounds", theme: "t-dusk" },
+  { yt: "9rviinVzfFU", month: "Nov 2025", title: "An owl on the ground", site: "bowyers", animals: ["owls", "deer"], desc: "Owl, deer, squirrel and more", theme: "t-dusk" },
+  { yt: "aYhYb-8ffno", month: "Sep 2025", title: "Night-time beavers!", site: "downicary", animals: ["beavers"], desc: "Wild beavers on the Downicary stream", theme: "t-wet" }
+];
+const ANIMALS = [["all","All"],["beavers","🦫 Beavers"],["owls","🦉 Owls & raptors"],["deer","🦌 Deer"],["badgers","🦡 Badgers & foxes"],["otters","🦦 Otters"],["birds","🐦 Birds"]];
+const SITES = [["all","All sites"],["bowyers","Bowyers Wood"],["downicary","Downicary"],["chris","Chris's River Cam"]];
+
+const SITE_INFO = {
+  bowyers: { name: "Bowyers Wood", where: "Near Uckfield, East Sussex", theme: "t-wood", src: "assets/chris_bowyers.jpg|assets/bowyers_wood.jpg",
+    facts: [["~250", "acres of semi-ancient woodland"], ["27", "acre beaver enclosure"], ["37", "breeding bird species"]],
+    text: "Once a plantation with almost no variety, now oak, beech, hazel, sweet chestnut and ash with ponds being brought back. A beaver family moved here from a Scottish development site in April 2026, and a kit has since been born.",
+    lives: ["🦫 Beavers", "🦉 Tawny owls", "🦅 Goshawk", "🦌 Deer", "🦡 Badgers", "🦇 Barbastelle bats", "🐦 Lesser spotted woodpecker"] },
+  downicary: { name: "Downicary", where: "River valley, Devon", theme: "t-wet", src: "assets/chris_downicary.jpg|assets/downicary_aerial.jpg",
+    facts: [["55", "acres of new planting"], ["3,500", "trees and shrubs"], ["1", "wild beaver stream"]],
+    text: "A river-fringed valley of over-grazed pasture becoming wet meadow, ponds and wet woodland. Diggers made scrapes and blocked old drains; local children planted willow, aspen, alder and oak with Chris in February.",
+    lives: ["🦦 Otters", "🐦 Kingfishers", "🦫 Wild beavers", "🦌 Roe deer", "🦊 Foxes", "🪶 Herons", "🦆 Mallards"] }
+};
+
+const EVENTS = [
+  { d: "14", m: "Nov", t: "Beaver dusk walk", where: "Bowyers Wood · Sat 4pm · 12 places left", e: "🦫" },
+  { d: "6", m: "Dec", t: "Winter tree planting", where: "Downicary · Sun · bring wellies", e: "🌳" },
+  { d: "21", m: "Mar", t: "Meet Chris Packham: spring rewilding day", where: "Bowyers Wood · ballot for members", e: "🎙️" },
+  { d: "13", m: "Jun", t: "BioBlitz 2027", where: "Both sites · count everything that moves", e: "🔍" }
+];
+
+const BOARD = [
+  { n: "Eurasian Beaver", l: "Castor fiber", theme: "t-water", src: "assets/beaver_close.jpg", role: "Chief Engineer", say: "Back after 400 years and already holding water through a drought. Votes for: more ponds." },
+  { n: "Barn Owl", l: "Tyto alba", theme: "t-dusk", src: "assets/barn_owl.jpg", role: "Head of Night Shift", say: "Wants long grass full of voles. Chris used to dissect owl pellets with doughnuts as a kid." },
+  { n: "Hedgehog", l: "Erinaceus europaeus", theme: "t-gold", src: "assets/hedgehog.jpg", role: "Director of Scrub", say: "Losing ground fast across Britain. Asks for brambles, log piles and beetle-rich meadows." },
+  { n: "Otter", l: "Lutra lutra", theme: "t-wet", src: "assets/otter.jpg", role: "Non-exec, Devon", say: "Spotted on the Downicary camera at night. Chris's first book was Ring of Bright Water." }
+];
+
+const VOTE = [
+  { id: "ponds", e: "💧", t: "More ponds and scrapes at Downicary", s: "Keep water on the land through the next drought", base: 38 },
+  { id: "meadow", e: "🌼", t: "Wildflower meadow at Bowyers", s: "Cut, rake and seed the old fields", base: 27 },
+  { id: "boxes", e: "🦉", t: "Owl, bat and dormouse boxes", s: "Two of three owl boxes were used in year one", base: 21 },
+  { id: "hedges", e: "🌿", t: "Hedgerow planting", s: "Blackthorn, hawthorn and dog rose for birds", base: 14 }
+];
+
+const TIMELINE = [
+  { w: "2019", b: "First land for nature", p: "Helped buy the Fairburn Ings tips in Yorkshire with the RSPB." },
+  { w: "2025", b: "Chris Packham joins as Chief Ecologist", p: "The Three Rs begin: reintroduce, rewild, replant." },
+  { w: "Feb 2026", b: "3,500 trees at Downicary", p: "Planted with local schoolchildren and the Woodland Trust." },
+  { w: "Apr 2026", b: "Beavers back in Sussex", p: "A mother and four kits, the first in East Sussex for 400 years." },
+  { w: "Jul 2026", b: "Nine owl chicks ringed", p: "Two broods in the new tawny owl boxes." },
+  { w: "Sep 2026", b: "The beavers beat the drought", p: "Their dams kept pools full while streams dried up.", now: true }
+];
+
+const BADGES = [
+  { id: "first", e: "🌱", b: "Switched", s: "Joined Ecotalk" },
+  { id: "owl", e: "🦉", b: "Owl Watcher", s: "Watched 5 cams" },
+  { id: "spot", e: "📸", b: "First Spot", s: "Log a sighting" },
+  { id: "vote", e: "🗳️", b: "Shareholder", s: "Vote on the fund" },
+  { id: "beaver", e: "🦫", b: "Beaver Backer", s: "Restore 10 m²" },
+  { id: "friend", e: "🤝", b: "Double Wild", s: "Bring a friend" },
+  { id: "walk", e: "🥾", b: "Boots On", s: "Visit a reserve" },
+  { id: "award", e: "🏆", b: "Hero Finder", s: "Nominate a hero" }
+];
+
+const SIGHTINGS = [
+  { who: "Priya, Bristol", what: "Beaver swimming", cat: "Mammal", theme: "t-water", src: "assets/beaver_water.jpg", ago: "12 min ago" },
+  { who: "Tom, Stroud", what: "Red squirrel", cat: "Mammal", theme: "t-gold", src: "assets/squirrel.jpg", ago: "40 min ago" },
+  { who: "Aisha, Leeds", what: "Hedgehog", cat: "Mammal", theme: "t-gold", src: "assets/hedgehog.jpg", ago: "1 hr ago" },
+  { who: "Megan, Uckfield", what: "Beaver gnawing a branch", cat: "Mammal", theme: "t-wood", src: "assets/beaver_close.jpg", ago: "2 hrs ago" },
+  { who: "Gareth, Cardiff", what: "Otter", cat: "Mammal", theme: "t-wet", src: "assets/otter.jpg", ago: "3 hrs ago" },
+  { who: "Lou, Exeter", what: "Barn owl", cat: "Bird", theme: "t-dusk", src: "assets/barn_owl.jpg", ago: "5 hrs ago" },
+  { who: "Sam, Brighton", what: "Cornflowers", cat: "Plant", theme: "t-wood", src: "assets/wildflowers.jpg", ago: "6 hrs ago" },
+  { who: "Jo, Horsham", what: "Beaver feeding on willow", cat: "Mammal", theme: "t-water", src: "assets/beaver_swim.jpg", ago: "8 hrs ago" }
+];
+
+const RINGS = [
+  { id: "week", e: "🍂", label: "This week", theme: "t-gold", slides: [
+    { src: "assets/bowyers_wood.jpg", h: "Late October on the reserves", p: "The woods are at their loudest after dark, and the colours are turning fast." },
+    { src: "yt:BnhdVO9clYM", h: "Look for: the deer rut", p: "Stags are calling at dawn and dusk. Keep your distance and enjoy the show." },
+    { src: "assets/hedgehog.jpg", h: "Look for: hedgehogs", p: "They're feeding hard before hibernation. Leave a corner of your garden messy for them." },
+    { src: "assets/owl.jpg", h: "Listen for: tawny owls", p: "Pairs call to hold their patch. \"Kewick\" is her, \"hoo-hoo\" is him." } ] },
+  { id: "beavers", e: "🦫", label: "Beavers", theme: "t-water", slides: [
+    { src: "assets/beaver_swim.jpg|yt:UHHLvG7qZns", h: "April 2026: they're back", p: "A mother and four kits released at Bowyers Wood. The first beavers in East Sussex for 400 years." },
+    { src: "assets/beaver_close.jpg|yt:wK1Fe6YuTdk", h: "Then a new kit", p: "A young beaver has since been born in the wood. The family is growing." },
+    { src: "assets/beaver_water.jpg|yt:Y6epEkJmHFc", h: "Drought? Not here.", p: "Their dams kept pools full all summer while streams outside dried to a trickle." },
+    { src: "assets/beaver_close.jpg", pos: "70% 40%", h: "Next: winter stores", p: "Autumn is when beavers stockpile branches. Watch the NatureCams for the larder." } ] },
+  { id: "owls", e: "🦉", label: "Owls", theme: "t-dusk", slides: [
+    { src: "assets/owl.jpg|yt:vw8wf-2NXOo", h: "Six owl boxes went up", p: "Two of the three tawny owl boxes were used in their very first season." },
+    { src: "assets/owl.jpg|yt:vw8wf-2NXOo", h: "Four chicks… then five", p: "Nine chicks ringed for the BTO. The ringer had never seen a brood of five before." },
+    { src: "yt:Y6epEkJmHFc", h: "And a goshawk", p: "Caught on a perch in daylight. Chris called it the \"Oscar of camera trapping\"." } ] },
+  { id: "devon", e: "🌊", label: "Downicary", theme: "t-wet", slides: [
+    { src: "assets/heatwave.jpg|yt:cZZI4Gh8mdI", h: "A flat sheep field", p: "A year ago, Downicary in Devon was closely grazed pasture with nowhere for wildlife to hide." },
+    { src: "assets/chris_downicary.jpg", h: "3,500 trees later", p: "Local schoolchildren planted willow, aspen, alder and oak with Chris in February." },
+    { src: "assets/otter.jpg", h: "Who's moved in", p: "A kingfisher fishing the ponds, roe deer, herons, and an otter slipping past at night." } ] },
+  { id: "chris", e: "🎙️", label: "Chris", theme: "t-wood", slides: [
+    { src: "assets/chris_bowyers.jpg|assets/packham.jpg", h: "Our Chief Ecologist", p: "Chris Packham joined Ecotalk to turn ordinary countryside into rich reserves: reintroduce, rewild, replant." },
+    { src: "assets/otter.jpg", h: "His river, live", p: "The camera at the water's edge in Chris's garden runs 24/7. Otters, herons, kingfishers." },
+    { src: "assets/chris_downicary.jpg|assets/packham.jpg", pos: "center 20%", h: "\"Planting trees is all about hope.\"", p: "Chris Packham, at the Downicary planting day." } ] },
+  { id: "dale", e: "💡", label: "Dale", theme: "t-gold", slides: [
+    { src: "assets/dale.jpg|assets/downicary_stream.jpg", h: "Bills into Hills", p: "Dale Vince started Ecotalk so an everyday phone bill could buy land back for nature." },
+    { src: "assets/beaver_swim.jpg", h: "No dividends", p: "Instead of paying shareholders, the profits go to the Green Britain Foundation's reserves." },
+    { src: "assets/beaver_close.jpg", h: "\"The Swiss Army knife of re-wilding\"", p: "Dale Vince on why beavers came first." } ] }
+];
+
+/* ---------------- image loader: tries each candidate, never shows a broken image ---------------- */
+const imgCache = {};
+function tryLoad(url) {
+  if (imgCache[url]) return imgCache[url];
+  imgCache[url] = new Promise((res, rej) => {
+    const im = new Image();
+    im.onload = () => (im.naturalWidth > 130 ? res(url) : rej());   // YouTube returns a 120px grey image for missing thumbs
+    im.onerror = rej;
+    im.src = url;
+  });
+  return imgCache[url];
+}
+const DATO = "https://www.datocms-assets.com/161871/";
+const Q = "?w=1600&auto=format&fit=max";
+// Ecotalk's own photos, from ecotalk.co.uk (used when online; cached for offline). A local file in assets/ always wins.
+const REMOTE = {
+  "beaver_swim.jpg": "1753171722-ecotalk-smallcarousel-one-bowyers1.jpg",
+  "beaver_close.jpg": "1749121091-ecotalk-smallcarousel-beaver2.jpg",
+  "beaver_water.jpg": "1790774898-screenshot-2026-09-30-at-11-38-25.png",
+  "bowyers_wood.jpg": "1753171723-ecotalk-smallcarousel-one-bowyers2.jpg",
+  "downicary_aerial.jpg": "1753171722-ecotalk-smallcarousel-one-downicary3.jpg",
+  "packham.jpg": "1753176142-ecotalk-3rs-replant.jpg",
+  "chris_bowyers.jpg": "1753173836-ecotalk-locations-bowyersx2.jpg",
+  "chris_downicary.jpg": "1753173836-ecotalk-locations-downicaryx2.jpg",
+  "owl.jpg": "1785418553-owls-banner.jpg",
+  "barn_owl.jpg": "1753107815-ecotalk-carousel-barnowl.jpg",
+  "hedgehog.jpg": "1753107781-ecotalk-carousel-hedgehog.jpg",
+  "otter.jpg": "1753176142-ecotalk-3rs-reintroduce.jpg",
+  "wildflowers.jpg": "1753176142-ecotalk-3rs-rewild.jpg",
+  "squirrel.jpg": "1752838162-squirrel-background-image.jpg",
+  "dam.jpg": "1790774898-screenshot-2026-09-30-at-11-38-25.png",
+  "heatwave.jpg": "1787954968-screenshot-2026-08-28-at-08-54-51.png",
+  "downicary_stream.jpg": "1753171721-ecotalk-smallcarousel-one-downicary2.jpg",
+  "oneyear.jpg": "1786639139-screenshot-2026-08-12-at-11-10-53.png",
+  "board.jpg": "1753274052-ecotalk-meettheboard-v6-1.jpg"
+};
+function resolve(src) {
+  const out = [];
+  src.split("|").filter(Boolean).forEach(s => {
+    if (s.startsWith("yt:")) { out.push(`https://img.youtube.com/vi/${s.slice(3)}/hqdefault.jpg`); return; }
+    out.push(s);
+    const f = s.replace(/^assets\//, "");
+    if (REMOTE[f]) out.push(DATO + REMOTE[f] + Q);
+  });
+  return [...new Set(out)];
+}
+async function hydrate(el) {
+  if (el.dataset.done) return; el.dataset.done = 1;
+  let img = el.querySelector(":scope > .img");
+  if (!img) { img = document.createElement("div"); img.className = "img"; el.prepend(img); }
+  for (const u of resolve(el.dataset.src || "")) {
+    try { await tryLoad(u); img.style.backgroundImage = `url("${u}")`; el.classList.add("loaded"); return; } catch (e) {}
+  }
+}
+function hydrateAll(root = document) { $$(".ph[data-src]", root).forEach(hydrate); }
+
+/* logo: swap in the real white logo if supplied */
+tryLoad("assets/logo_white.png").then(u => { $("#logo").innerHTML = `<img src="${u}" alt="Ecotalk">`; }).catch(() => {});
+
+/* ---------------- helpers ---------------- */
+const toastEl = $("#toast"); let toastT;
+function toast(html) { toastEl.innerHTML = html; toastEl.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove("show"), 2400); }
+function addPoints(n, why) {
+  const from = state.points; state.points += n;
+  countTo($("#points"), from, state.points, 700, 0);
+  const pill = $("#pointsPill"); pill.classList.remove("bump"); void pill.offsetWidth; pill.classList.add("bump");
+  toast(`<b>+${n} Wild Points</b> ${why || ""}`);
+}
+function countTo(el, from, to, dur = 1400, dec = 0) {
+  const t0 = performance.now();
+  const f = t => {
+    const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3), v = from + (to - from) * e;
+    el.textContent = dec ? v.toFixed(dec) : Math.round(v).toLocaleString("en-GB");
+    if (p < 1) requestAnimationFrame(f);
+  };
+  requestAnimationFrame(f);
+}
+function runCounters(root) {
+  $$("[data-count]", root).forEach(el => { countTo(el, 0, parseFloat(el.dataset.count), 1600, +(el.dataset.dec || 0)); });
+  $$("[data-bar]", root).forEach(el => { el.style.width = "0"; requestAnimationFrame(() => setTimeout(() => el.style.width = el.dataset.bar + "%", 60)); });
+}
+function burst(emojis = ["🍃", "🌿", "🍂", "✨", "🌱"]) {
+  const b = $("#burst"); b.innerHTML = "";
+  const cx = innerWidth / 2, cy = innerHeight / 2;
+  for (let i = 0; i < 34; i++) {
+    const s = document.createElement("i"); s.textContent = emojis[i % emojis.length];
+    s.style.left = cx + "px"; s.style.top = cy + "px"; b.appendChild(s);
+    const a = Math.random() * Math.PI * 2, d = 140 + Math.random() * Math.min(innerWidth, 520) * .6;
+    s.animate([{ transform: "translate(-50%,-50%) scale(.4) rotate(0)", opacity: 1 },
+               { transform: `translate(calc(-50% + ${Math.cos(a) * d}px), calc(-50% + ${Math.sin(a) * d + 120}px)) scale(1.1) rotate(${Math.random() * 540 - 270}deg)`, opacity: 0 }],
+      { duration: 1200 + Math.random() * 700, easing: "cubic-bezier(.2,.8,.2,1)", fill: "forwards" });
+  }
+  setTimeout(() => b.innerHTML = "", 2200);
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------------- navigation ---------------- */
+let current = "home";
+const seen = new Set();
+function go(name) {
+  if (!$(`#v-${name}`)) return;
+  current = name;
+  $$(".view").forEach(v => v.classList.toggle("active", v.dataset.view === name));
+  $$(".tab").forEach(t => t.classList.toggle("active", t.dataset.go === name));
+  $("#fab").classList.toggle("hide", name !== "home");
+  const v = $(`#v-${name}`); v.scrollTop = 0; onScroll();
+  if (!seen.has(name)) { seen.add(name); runCounters(v); }
+  if (name === "home") { $("#chrisNote").classList.remove("playing"); }
+}
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); closeSheet(); go(g.dataset.go); return; }
+  const o = e.target.closest("[data-open]"); if (o) { e.preventDefault(); openNamed(o.dataset.open); return; }
+  const s = e.target.closest("[data-story]"); if (s) { e.preventDefault(); openStory(s.dataset.story); }
+});
+const topbar = $("#topbar");
+function onScroll() { const v = $(`#v-${current}`); topbar.classList.toggle("solid", current !== "home" || v.scrollTop > 260); }
+$$(".view").forEach(v => v.addEventListener("scroll", onScroll, { passive: true }));
+$("#pointsPill").addEventListener("click", () => go("impact"));
+
+/* ---------------- sheet ---------------- */
+const sheet = $("#sheet"), overlay = $("#overlay"), sheetBody = $("#sheetBody");
+function openSheet(html) { sheetBody.innerHTML = html; sheet.scrollTop = 0; hydrateAll(sheetBody); sheet.classList.add("open"); overlay.classList.add("open"); }
+function closeSheet() { sheet.classList.remove("open"); overlay.classList.remove("open"); }
+overlay.addEventListener("click", () => { closeSheet(); });
+$("#sheetX").addEventListener("click", closeSheet);
+function successHTML(icon, title, text, btn = "Lovely") {
+  return `<div class="success"><span class="beaver">${icon}</span><h2>${title}</h2><p>${text}</p><button class="btn" style="margin-top:18px" onclick="this.closest('.sheet').classList.remove('open');document.getElementById('overlay').classList.remove('open')">${btn}</button></div>`;
+}
+function openNamed(n) { ({ share: openShare, me: openMe })[n]?.(); }
+
+/* ---------------- HOME ---------------- */
+const hr = new Date().getHours();
+$("#greeting").textContent = (hr < 12 ? "Morning" : hr < 18 ? "Afternoon" : "Evening") + ", Sam";
+$("#stories").innerHTML = STORIES.map(s => `
+  <button class="story ph ${s.theme}" data-src="${s.src}" data-story="${s.id}">
+    <div class="img"></div><div class="contour"></div><div class="scrim"></div>
+    <div><span class="badge glass">${s.tag} · ${s.date}</span><h3>${s.title}</h3><p>${s.lede}</p></div>
+  </button>`).join("");
+function openStory(id) {
+  const s = STORIES.find(x => x.id === id); if (!s) return;
+  openSheet(`<div class="sh-img ph ${s.theme}" data-src="${s.src}"><div class="img"></div><div class="contour"></div><div class="scrim"></div><span class="badge glass">${s.tag} · ${s.date}</span></div>
+    <div class="sh-body"><h2>${s.title}</h2><p style="font-size:18px;color:var(--ink)">${s.lede}</p><p>${s.body}</p>
+    <div class="actions"><button class="btn" id="stWatch">▶ Watch the footage</button><a class="btn ghost" href="${s.url}" target="_blank" rel="noopener">Read on ecotalk.co.uk</a></div>
+    <p style="font-size:12px;color:var(--muted);margin-top:16px">Summary of Ecotalk's community story. Concept by Dan Jones.</p></div>`);
+  $("#stWatch").onclick = () => { closeSheet(); openPlayer({ yt: s.yt, title: s.title, sub: s.tag + " · " + s.date, theme: s.theme, src: s.src }); };
+  if (!state.readStories) state.readStories = new Set();
+  if (!state.readStories.has(id)) { state.readStories.add(id); setTimeout(() => addPoints(2, "for catching up"), 500); }
+}
+// Chris voice note (concept animation)
+const wave = $("#chrisNote .wave"); wave.innerHTML = Array.from({ length: 28 }, (_, i) => `<i style="animation-delay:${(i % 7) * .09}s;height:${20 + (i * 37 % 70)}%"></i>`).join("");
+$("#chrisNote").addEventListener("click", function () {
+  this.classList.toggle("playing");
+  if (this.classList.contains("playing")) { toast("🎙️ Concept: Chris's monthly voice note would play here"); setTimeout(() => this.classList.remove("playing"), 6000); }
+});
+// ring chart
+setTimeout(() => { const c = 263.9; $("#ringArc").style.strokeDashoffset = c * (1 - 0.46); }, 400);
+
+function openShare() {
+  openSheet(`<div class="sh-img ph t-wood" data-src="assets/beaver_swim.jpg"><div class="img"></div><div class="contour"></div><div class="scrim"></div><span class="badge">Concept offer: you both get £5</span></div>
+    <div class="sh-body"><h2>Bring a friend, restore twice the land</h2>
+    <p>Every friend who switches doubles your squares of woodland, and you each get £5 off. On eSIM they can be up and running within the hour.</p>
+    <div class="card" style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><span style="font-size:15px">ecotalk.co.uk/r/SAM-BEAVER</span><span class="badge concept">Placeholder link</span></div>
+    <div class="actions"><button class="btn block" id="doShare">Share my link</button></div></div>`);
+  $("#doShare").onclick = async () => {
+    const data = { title: "Ecotalk", text: "My phone bill is bringing beavers back to Britain. Switch to Ecotalk and we both get £5.", url: "https://www.ecotalk.co.uk" };
+    try { if (navigator.share) { await navigator.share(data); } else { await navigator.clipboard?.writeText(data.url); throw 0; } sheetBody.innerHTML = successHTML("🤝", "Shared!", "When they switch, you'll both get £5."); }
+    catch (e) { if (e && e.name === "AbortError") return; toast("<b>Link copied</b> ready to paste"); }
+    state.badges.add("friend"); renderBadges();
+  };
+}
+
+/* ---------------- ME / account (light) ---------------- */
+function openMe() {
+  const plans = [["10GB", "£12"], ["30GB", "£14"], ["100GB", "£18"], ["Unlimited", "£22"]];
+  openSheet(`<div class="sh-body" style="padding-top:28px">
+    <div class="eyebrow">Sam Taylor · member since 2024 · sample member</div><h2>Your Ecotalk</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><span class="nopr">✓ No price rises, ever</span><span class="badge concept" style="padding:8px 12px">UK network · 30-day SIM-only</span></div>
+    <div class="card dark esim" id="esimCard" style="margin-top:20px;position:relative;overflow:hidden"><div class="contour"></div><div style="position:relative">
+      <div class="eyebrow" style="color:var(--lime)">eSIM fast track</div>
+      <h3 style="font-size:22px;margin-top:4px">Live within the hour</h3>
+      <div class="esim-steps">
+        <div><b>Now</b><span>Order online</span></div>
+        <div><b>30 min</b><span>Welcome email</span></div>
+        <div><b>1 hour</b><span>eSIM live</span></div>
+        <div><b>Next working day</b><span>Old number moves over</span></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><button class="btn small" id="esimGo">Add an eSIM for someone</button><button class="btn small ghost" style="color:var(--off)" id="esimMine">Move my SIM to eSIM</button></div>
+      <p style="font-size:12px;opacity:.6;margin-top:10px">Timings as confirmed by Ecotalk customer service, Oct 2026.</p>
+    </div></div>
+    <h3 style="margin-top:24px;font-size:19px">Need more data?</h3>
+    <div class="topups" style="margin-top:10px">${[["1GB", "£4"], ["3GB", "£6"], ["10GB", "£9"]].map(([g, p]) => `<button class="btn dark" data-top="${g}|${p}">${g}<small>${p}</small></button>`).join("")}</div>
+    <h3 style="margin-top:24px;font-size:19px">Your plan</h3>
+    <div class="plans" style="margin-top:10px">${plans.map(([g, p]) => `<button class="plan ${g === state.plan ? "on" : ""}" data-plan="${g}"><b>${g}</b><span>${p} a month</span></button>`).join("")}</div>
+    <p id="planMsg" class="muted" style="font-size:14px;margin-top:10px">Prices as on ecotalk.co.uk, Oct 2026. New customers: 100GB for £12 for 3 months.</p>
+    <h3 style="margin-top:24px;font-size:19px">Talk to a human in Stroud</h3>
+    <div class="chat" id="chat"></div>
+    <p style="font-size:12px;color:var(--muted);margin-top:18px">Concept by Dan Jones · not a live Ecotalk product · no real payments</p></div>`);
+  $$("[data-top]", sheetBody).forEach(b => b.onclick = () => {
+    const [g, p] = b.dataset.top.split("|");
+    if (b.dataset.armed) { b.classList.add("done"); b.innerHTML = `✓ ${g}<small>added instantly</small>`; toast(`<b>Done</b> ${g} added instantly`); burst(["📶", "🍃", "✨"]); delete b.dataset.armed; return; }
+    $$("[data-top]", sheetBody).forEach(x => { delete x.dataset.armed; if (!x.classList.contains("done")) x.style.outline = ""; });
+    b.dataset.armed = 1; b.style.outline = "3px solid var(--lime)"; b.innerHTML = `Tap to confirm<small>${g} for ${p}</small>`;
+  });
+  $$("[data-plan]", sheetBody).forEach(b => b.onclick = () => {
+    $$("[data-plan]", sheetBody).forEach(x => x.classList.toggle("on", x === b));
+    const was = state.plan; state.plan = b.dataset.plan;
+    $("#planMsg").innerHTML = was === state.plan ? "That's your current plan." : `<b style="font-weight:500;color:var(--forest)">✓ ${state.plan} it is.</b> Changes from your next bill.`;
+  });
+  const chat = $("#chat"), msgs = [
+    ["them", "Hi Sam, it's Hannah in the Stroud team 👋 How can I help today?", "Ecotalk · 2 min"],
+    ["me", "Can I keep my number if my partner switches too?", "You"],
+    ["them", "Absolutely. Just text PAC to 65075 from the old phone, then pop the code in at checkout. And yes, the beavers say thank you. 🦫", "Ecotalk · just now"]
+  ];
+  msgs.forEach((m, i) => setTimeout(() => { chat.insertAdjacentHTML("beforeend", `<div class="msg ${m[0]}">${m[1]}<small>${m[2]}</small></div>`); }, 300 + i * 700));
+  $("#esimGo").onclick = () => { $("#esimCard").outerHTML = `<div class="card mint" style="margin-top:20px">${successHTML("📲", "eSIM on its way", "They'll get a welcome email within 30 minutes and can be live within the hour.", "Done").replace('<div class="success">','<div class="success" style="padding:8px 0 0">')}</div>`; burst(["📲","🌿","✨"]); };
+  $("#esimMine").onclick = () => toast("<b>QR code sent</b> to your email. Scan it to switch to eSIM.");
+}
+
+/* ---------------- WATCH ---------------- */
+const filt = { animal: "all", site: "all" };
+function chipRow(el, items, key) {
+  el.innerHTML = items.map(([v, l]) => `<button class="chip ${filt[key] === v ? "on" : ""}" data-v="${v}">${l}</button>`).join("");
+  el.onclick = e => { const c = e.target.closest(".chip"); if (!c) return; filt[key] = c.dataset.v; $$(".chip", el).forEach(x => x.classList.toggle("on", x === c)); renderCams(); };
+}
+chipRow($("#animalChips"), ANIMALS, "animal"); chipRow($("#siteChips"), SITES, "site");
+const siteName = { bowyers: "Bowyers Wood, East Sussex", downicary: "Downicary, Devon", chris: "Chris Packham's garden" };
+const camSrc = c => `${c.site === "downicary" ? "assets/downicary_aerial.jpg" : c.site === "chris" ? "assets/otter.jpg" : "assets/bowyers_wood.jpg"}`;
+function renderCams() {
+  const list = CAMS.filter(c => (filt.animal === "all" || c.animals.includes(filt.animal)) && (filt.site === "all" || c.site === filt.site));
+  $("#cams").innerHTML = list.map(c => `
+    <button class="cam" data-yt="${c.yt}">
+      <div class="ph ${c.theme}" data-src="yt:${c.yt}|${camSrc(c)}"><div class="img"></div><div class="contour"></div><span class="badge glass">${c.month}</span><span class="pl"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span></div>
+      <div class="meta"><h3>${c.title}</h3><p>${siteName[c.site]} · ${c.desc}</p></div>
+    </button>`).join("");
+  $("#camEmpty").hidden = list.length > 0;
+  hydrateAll($("#cams"));
+}
+renderCams();
+$("#cams").addEventListener("click", e => {
+  const b = e.target.closest(".cam"); if (!b) return;
+  const c = CAMS.find(x => x.yt === b.dataset.yt);
+  openPlayer({ yt: c.yt, title: c.title, sub: `${siteName[c.site]} · ${c.month}`, theme: c.theme, src: camSrc(c) });
+  watchCount++; if (watchCount === 3) addPoints(5, "for 3 NatureCams watched");
+});
+let watchCount = 0;
+// live panel: local mp4 if supplied, else photo / YouTube thumb with Ken Burns
+(function () {
+  const live = $("#liveCam"), v = document.createElement("video");
+  v.muted = true; v.loop = true; v.playsInline = true; v.autoplay = true; v.setAttribute("playsinline", ""); v.setAttribute("muted", "");
+  v.src = "assets/beaver_loop.mp4";
+  v.addEventListener("loadeddata", () => { live.prepend(v); live.classList.add("loaded"); v.play().catch(() => {}); }, { once: true });
+  v.addEventListener("error", () => {}, { once: true });
+  v.load();
+  const open = () => openPlayer({ yt: "QlWLjFJpXMY", title: "Chris Packham's LIVE River Camera", sub: "New Forest · concept: live feed here", theme: "t-water", src: "assets/otter.jpg", live: true, mp4: "assets/beaver_loop.mp4" });
+  live.addEventListener("click", open); live.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
+})();
+
+/* ---------------- player ---------------- */
+const player = $("#player"), stage = $("#stage");
+async function openPlayer(o) {
+  stage.innerHTML = "";
+  $("#playerCap").innerHTML = `<div><h3>${esc(o.title)}</h3><p>${esc(o.sub)}</p></div>${o.live ? '<span class="badge live"><span class="dot"></span>Live</span>' : ""}`;
+  player.classList.add("open");
+  // 1) local video
+  const local = o.mp4 || (o.yt ? `assets/cams/${o.yt}.mp4` : null);
+  if (local && await videoExists(local)) {
+    stage.innerHTML = `<video src="${local}" autoplay playsinline controls ${o.live ? "loop muted" : ""}></video>`; return;
+  }
+  // 2) online: YouTube embed
+  if (o.yt && navigator.onLine) {
+    stage.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${o.yt}?autoplay=1&playsinline=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="${esc(o.title)}"></iframe>`; return;
+  }
+  // 3) offline: photo with slow zoom
+  stage.innerHTML = `<div class="ph ${o.theme || "t-water"}" data-src="${o.src || ""}|${o.yt ? "yt:" + o.yt : ""}"><div class="img"></div><div class="contour"></div><div class="scrim"></div></div>
+    <div class="offline-note"><span class="badge live">Concept</span><h3 style="font-size:24px">Footage plays here</h3><p style="opacity:.8;margin-top:6px">You're offline, so here's a still. Online, this streams the NatureCam from Ecotalk's channel.</p></div>`;
+  hydrateAll(stage);
+}
+function videoExists(src) {
+  return new Promise(res => {
+    const v = document.createElement("video"); let done = false;
+    const fin = ok => { if (!done) { done = true; res(ok); v.removeAttribute("src"); v.load(); } };
+    v.preload = "metadata"; v.muted = true;
+    v.onloadedmetadata = () => fin(true); v.onerror = () => fin(false);
+    setTimeout(() => fin(false), 1500); v.src = src;
+  });
+}
+function closePlayer() { player.classList.remove("open"); setTimeout(() => stage.innerHTML = "", 260); }
+$("#playerX").addEventListener("click", closePlayer);
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closePlayer(); closeSheet(); } });
+
+/* ---------------- SPOT IT ---------------- */
+function sightingHTML(s, mine) {
+  return `<div class="sight ${mine ? "mine" : ""}"><div class="ph ${s.theme || "t-wood"}" ${s.src ? `data-src="${s.src}"` : ""} style="--pos:${s.pos || "center"}">${s.url ? `<img src="${s.url}" alt="">` : '<div class="img"></div><div class="contour"></div>'}</div>
+    <div class="meta"><b>${esc(s.what)}</b><span>${esc(s.who)} · ${s.ago}</span></div></div>`;
+}
+const wall = $("#wall");
+wall.innerHTML = SIGHTINGS.map(s => sightingHTML(s)).join(""); hydrateAll(wall);
+$("#camInput").addEventListener("change", e => {
+  const f = e.target.files && e.target.files[0]; if (!f) return;
+  const url = URL.createObjectURL(f); e.target.value = "";
+  const cats = ["Bird", "Mammal", "Insect", "Plant", "Fungi", "Other", "Not sure"]; let cat = null;
+  openSheet(`<div class="sh-img" style="height:300px;padding:0;position:relative;background:#000"><img src="${url}" alt="" style="width:100%;height:100%;object-fit:cover"></div>
+    <div class="sh-body"><h2>What did you spot?</h2>
+    <div class="chips" id="spCats" style="margin-top:14px">${cats.map(c => `<button class="chip" data-c="${c}">${c}</button>`).join("")}</div>
+    <div class="field"><label for="spNote">Add a note (optional)</label><input id="spNote" placeholder="e.g. heard it calling at dusk by the river"></div>
+    <div class="actions"><button class="btn block" id="spGo" disabled style="opacity:.5">Share to the community map</button></div></div>`);
+  $("#spCats").onclick = ev => { const c = ev.target.closest(".chip"); if (!c) return; cat = c.dataset.c; $$("#spCats .chip").forEach(x => x.classList.toggle("on", x === c)); const g = $("#spGo"); g.disabled = false; g.style.opacity = 1; };
+  $("#spGo").onclick = () => {
+    const note = $("#spNote").value.trim();
+    wall.insertAdjacentHTML("afterbegin", sightingHTML({ what: note || (cat === "Not sure" ? "Mystery sighting" : cat), who: "You", ago: "just now", url }, true));
+    const sc = $("#sightCount"); const n = parseInt(sc.textContent.replace(/,/g, "")) || 1284; countTo(sc, n, n + 1, 600);
+    sheetBody.innerHTML = successHTML("🦫", "Shared to the Ecotalk community map", "Thanks! Ecologists can see what's turning up where. <b style='color:var(--forest);font-weight:500'>+10 Wild Points</b>", "See it on the wall");
+    burst(); addPoints(10, "for your sighting");
+    state.badges.add("spot"); renderBadges();
+    setTimeout(() => $("#wall").scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+  };
+});
+
+/* ---------------- RESERVES ---------------- */
+function showSite(id) {
+  const s = SITE_INFO[id];
+  $$(".pin").forEach(p => p.classList.toggle("on", p.id === "pin-" + id));
+  $("#siteCard").innerHTML = `<div class="ph ${s.theme}" data-src="${s.src}"><div class="img"></div><div class="contour"></div><div class="scrim"></div><div><span class="badge glass">${s.where}</span><h3 style="margin-top:8px">${s.name}</h3></div></div>
+    <div class="body">
+      <div class="facts">${s.facts.map(([b, l]) => `<div class="fact"><b>${b}</b><span>${l}</span></div>`).join("")}</div>
+      <p style="font-size:15px;color:#3c4a40">${s.text}</p>
+      <div><div class="eyebrow" style="margin-bottom:8px">Who lives here</div><div class="who-lives">${s.lives.map(l => `<span>${l}</span>`).join("")}</div></div>
+      <button class="btn dark" data-go="watch" style="align-self:flex-start">Watch ${s.name} cams</button>
+    </div>`;
+  hydrateAll($("#siteCard"));
+}
+$("#mapbox").addEventListener("click", e => { const b = e.target.closest("[data-site]"); if (b) showSite(b.dataset.site); });
+showSite("bowyers");
+tryLoad("assets/uk_map.png").then(u => { $("#gbSvg").remove(); $("#mapbox").insertAdjacentHTML("afterbegin", `<img class="map" src="${u}" alt="Map of the UK">`); }).catch(() => {});
+
+$("#events").innerHTML = EVENTS.map((ev, i) => `
+  <div class="card event"><div class="date"><b>${ev.d}</b><span>${ev.m}</span></div>
+  <div class="info"><h3>${ev.e} ${ev.t}</h3><p>${ev.where}</p></div>
+  <button class="btn small" data-book="${i}">Book a place</button></div>`).join("");
+$("#events").addEventListener("click", e => {
+  const b = e.target.closest("[data-book]"); if (!b || b.classList.contains("done")) return;
+  b.classList.add("done"); b.textContent = "✓ You're on the list!";
+  const ev = EVENTS[b.dataset.book];
+  openSheet(successHTML("🦫", "You're on the list!", `${ev.t}, ${ev.d} ${ev.m}. We'll send directions and a kit list nearer the time.`));
+  burst(["🥾", "🍃", "🌿"]); state.badges.add("walk"); renderBadges(); setTimeout(() => addPoints(5, "for getting out there"), 600);
+});
+let awCat = "School";
+$("#awCats").innerHTML = ["School", "Farm", "Community group", "Business"].map(c => `<button type="button" class="chip ${c === awCat ? "on" : ""}" data-c="${c}">${c}</button>`).join("");
+$("#awCats").onclick = e => { const c = e.target.closest(".chip"); if (!c) return; awCat = c.dataset.c; $$("#awCats .chip").forEach(x => x.classList.toggle("on", x === c)); };
+$("#awardForm").addEventListener("submit", e => {
+  e.preventDefault(); const name = $("#aw-name").value.trim() || "your green hero";
+  $("#awards").innerHTML = `<div class="success"><span class="beaver">🌿</span><h2>Nominated! 🌿</h2><p>${esc(name)} is in the running for the ${awCat} award. Winners are announced in the members' newsletter.</p></div>`;
+  burst(); state.badges.add("award"); renderBadges(); addPoints(5, "for spreading the love");
+});
+
+/* ---------------- IMPACT ---------------- */
+$("#board").innerHTML = BOARD.map((m, i) => `
+  <button class="member" data-m="${i}"><div class="ph ${m.theme}" data-src="${m.src}"><div class="img"></div><div class="contour"></div><span class="badge glass">${m.role}</span></div>
+  <div class="meta"><b>${m.n}</b><i>${m.l}</i></div></button>`).join("");
+$("#board").addEventListener("click", e => {
+  const b = e.target.closest(".member"); if (!b) return; const m = BOARD[b.dataset.m];
+  openSheet(`<div class="sh-img ph ${m.theme}" data-src="${m.src}"><div class="img"></div><div class="contour"></div><div class="scrim"></div><div><span class="badge">${m.role}</span><h2 style="color:var(--off);margin-top:8px">${m.n}</h2></div></div>
+    <div class="sh-body"><p style="font-style:italic;color:var(--slate)">${m.l}</p><p style="font-size:18px;color:var(--ink)">${m.say}</p>
+    <div class="actions"><button class="btn" data-go="impact" onclick="document.getElementById('voteCard').scrollIntoView({behavior:'smooth'})">Cast your vote</button></div></div>`);
+});
+function renderVote() {
+  const total = 2318 + (state.voted ? 1 : 0);
+  $("#voteOpts").innerHTML = VOTE.map(o => `<button class="vote-opt ${state.voted === o.id ? "mine" : ""}" data-vote="${o.id}"><span class="fill"></span><span class="e">${o.e}</span><span class="t"><b>${o.t}</b><span>${o.s}</span></span><span class="pct">${o.base + (state.voted === o.id ? 1 : 0)}%</span></button>`).join("");
+  $("#voteCard").classList.toggle("voted", !!state.voted);
+  if (state.voted) {
+    requestAnimationFrame(() => setTimeout(() => $$(".vote-opt").forEach(b => { const o = VOTE.find(x => x.id === b.dataset.vote); b.querySelector(".fill").style.width = (o.base + (state.voted === o.id ? 1 : 0)) + "%"; }), 50));
+    $("#voteMsg").innerHTML = `<b style="font-weight:500;color:var(--forest)">Thanks, shareholder.</b> ${total.toLocaleString("en-GB")} members have voted. Chris will report back on the result.`;
+  }
+}
+renderVote();
+$("#voteOpts").addEventListener("click", e => {
+  const b = e.target.closest("[data-vote]"); if (!b) return;
+  const first = !state.voted; state.voted = b.dataset.vote; renderVote();
+  if (first) { burst(["🗳️", "🌿", "✨"]); addPoints(5, "for voting"); state.badges.add("vote"); renderBadges(); }
+});
+$("#timeline").innerHTML = TIMELINE.map(t => `<div class="tl ${t.now ? "now" : ""}"><div class="when">${t.w}</div><b>${t.b}</b><p>${t.p}</p></div>`).join("");
+function renderBadges() {
+  $("#badges").innerHTML = BADGES.map(b => `<div class="bdg ${state.badges.has(b.id) ? "" : "locked"}"><div class="e">${b.e}</div><b>${b.b}</b><span>${b.s}</span></div>`).join("");
+}
+renderBadges();
+
+/* ---------------- stories viewer ---------------- */
+const viewer = $("#viewer"), vFrame = $("#vFrame"); let vs = null;
+$("#rings").innerHTML = RINGS.map(r => `<button class="ring-btn" data-ring="${r.id}"><span class="halo"><span class="ph ${r.theme}" data-src="${r.slides[0].src}"><span class="img"></span>${r.e}</span></span>${r.label}</button>`).join("");
+$("#rings").addEventListener("click", e => { const b = e.target.closest("[data-ring]"); if (b) openRing(RINGS.findIndex(r => r.id === b.dataset.ring), 0); });
+function openRing(ri, si) {
+  clearTimeout(vs?.t);
+  const r = RINGS[ri]; if (!r) return closeViewer();
+  if (si >= r.slides.length) return openRing(ri + 1, 0);
+  if (si < 0) return ri > 0 ? openRing(ri - 1, RINGS[ri - 1].slides.length - 1) : openRing(0, 0);
+  vs = { ri, si };
+  const s = r.slides[si];
+  vFrame.innerHTML = `<div class="ph ${r.theme}" data-src="${s.src}" style="--pos:${s.pos || "center"}"><div class="img"></div><div class="contour"></div><div class="scrim"></div></div>
+    <div class="bars">${r.slides.map((_, i) => `<i><b style="width:${i < si ? 100 : 0}%"></b></i>`).join("")}</div>
+    <div class="head"><span class="mini">${r.e}</span><span>${r.label} · Ecotalk Wild</span><button class="close" aria-label="Close">✕</button></div>
+    <button class="tapL" aria-label="Previous"></button><button class="tapR" aria-label="Next"></button>
+    <div class="copy"><h2>${s.h}</h2><p>${s.p}</p></div>`;
+  hydrateAll(vFrame);
+  viewer.classList.add("open");
+  const bar = vFrame.querySelectorAll(".bars b")[si];
+  bar.animate([{ width: "0%" }, { width: "100%" }], { duration: 5500, fill: "forwards" });
+  vs.t = setTimeout(() => openRing(ri, si + 1), 5500);
+  $(`[data-ring="${r.id}"]`).classList.add("seen");
+  if (!state.ringsSeen) state.ringsSeen = new Set();
+  if (si === r.slides.length - 1 && !state.ringsSeen.has(r.id)) { state.ringsSeen.add(r.id); setTimeout(() => addPoints(2, `for the ${r.label} story`), 300); }
+}
+function closeViewer() { clearTimeout(vs?.t); vs = null; viewer.classList.remove("open"); }
+vFrame.addEventListener("click", e => {
+  if (!vs) return;
+  if (e.target.closest(".close")) return closeViewer();
+  if (e.target.closest(".tapL")) return openRing(vs.ri, vs.si - 1);
+  if (e.target.closest(".tapR")) return openRing(vs.ri, vs.si + 1);
+});
+document.addEventListener("keydown", e => { if (!vs) return; if (e.key === "ArrowRight") openRing(vs.ri, vs.si + 1); if (e.key === "ArrowLeft") openRing(vs.ri, vs.si - 1); if (e.key === "Escape") closeViewer(); });
+
+/* streak */
+$("#streak").innerHTML = Array.from({ length: 14 }, (_, i) => `<span class="${i < 12 ? "on" : ""}">${i < 12 ? "🌿" : i + 1}</span>`).join("");
+
+/* live-ticking personal counter (after the first count-up) */
+setTimeout(() => {
+  let v = 4.183; const el = $("#youCount");
+  setInterval(() => { v += 0.001; el.textContent = v.toFixed(3); }, 3500);
+}, 2200);
+
+/* ---------------- boot ---------------- */
+hydrateAll();
+seen.add("home"); setTimeout(() => runCounters($("#v-home")), 250);
+$("#points").textContent = state.points;
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("sw.js").catch(() => {});
+})();
+</script>
+</body>
+</html>

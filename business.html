@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ecotalk for Business</title>
+<meta name="description" content="Ecotalk for Business: a concept portal by Dan Jones. Not a live Ecotalk product.">
+<meta name="theme-color" content="#212F17">
+<link rel="icon" href="icons/icon-192.png">
+<style>
+@font-face{font-family:"Borna";src:url("assets/BornaMedium.otf") format("opentype");font-weight:500;font-display:swap}
+:root{
+  --forest:#212F17;--forest-2:#2C3D20;--lime:#AEF009;--mint:#D7F8EB;--off:#F5F9F1;--slate:#354E5A;--cyan:#00FFEE;
+  --ink:#212F17;--muted:#5d6b63;--line:rgba(33,47,23,.11);--card:#fff;--amber:#E9A23B;--red:#C8553D;
+  --r:16px;--ease:cubic-bezier(.2,.8,.2,1);--side:248px;
+  font-family:"Borna",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--off);color:var(--ink)}
+body{font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+h1,h2,h3{font-weight:500;letter-spacing:-.01em;line-height:1.15}
+.muted{color:var(--muted)}
+.eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--slate)}
+
+/* shell */
+.shell{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+.side{background:var(--forest);color:var(--off);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 16px;gap:6px}
+.brand{display:flex;flex-direction:column;gap:2px;padding:0 10px 18px}
+.brand .w{font-size:22px;letter-spacing:-.02em}.brand .w b{color:var(--lime);font-weight:500}
+.brand .s{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+.nav{display:flex;flex-direction:column;gap:4px}
+.nav button{display:flex;align-items:center;gap:12px;min-height:46px;padding:0 12px;border-radius:12px;text-align:left;white-space:nowrap;color:rgba(245,249,241,.75);transition:background .2s,color .2s}
+.nav button svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.nav button:hover{background:rgba(245,249,241,.07);color:var(--off)}
+.nav button.on{background:rgba(174,240,9,.14);color:var(--lime)}
+.nav .new{margin-left:auto;font-size:10px;letter-spacing:.08em;text-transform:uppercase;background:var(--lime);color:var(--forest);padding:3px 7px;border-radius:99px}
+.side .foot{margin-top:auto;font-size:12px;opacity:.6;padding:0 10px;line-height:1.5}
+.side .foot a{color:var(--lime)}
+
+.main{min-width:0}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(245,249,241,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;padding:12px 28px;flex-wrap:wrap}
+.co{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 14px 4px 4px;border-radius:99px;background:#fff;border:1px solid var(--line);position:relative}
+.co .lg{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--forest);color:var(--lime);font-size:14px}
+.co select{appearance:none;-webkit-appearance:none;border:0;background:transparent;font-size:15px;padding-right:20px;cursor:pointer;outline:none}
+.co::after{content:"▾";position:absolute;right:12px;font-size:12px;color:var(--slate);pointer-events:none}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:11px;letter-spacing:.07em;text-transform:uppercase;background:rgba(53,78,90,.09);color:var(--slate);white-space:nowrap}
+.tag.lime{background:var(--lime);color:var(--forest)}
+.tag.mint{background:var(--mint);color:var(--forest)}
+.tag.amber{background:#fbe9cd;color:#7a4b06}
+.tag.red{background:#f6dcd6;color:#7c2b1a}
+.tag.itag{background:#efe3ff;color:#4b2a7a}
+.topbar .sp{flex:1}
+@media (min-width:1001px){.topbar{flex-wrap:nowrap}}
+@media (max-width:1300px){.who span{display:none}}
+.who{display:flex;align-items:center;gap:10px;font-size:14px}
+.who .av{width:38px;height:38px;border-radius:50%;background:var(--lime);display:grid;place-items:center;color:var(--forest)}
+
+.page{padding:26px 28px 60px;max-width:1280px}
+.ph{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.ph h1{font-size:clamp(26px,3vw,34px);margin-top:4px}
+.ph p{color:var(--slate);margin-top:4px;max-width:640px}
+.view{display:none;animation:fade .3s var(--ease)}
+.view.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;padding:0 18px;border-radius:99px;background:var(--forest);color:var(--off);font-size:14px;white-space:nowrap;transition:transform .15s var(--ease),filter .2s}
+.btn:hover{filter:brightness(1.12)}
+.btn:active{transform:scale(.97)}
+.btn.lime{background:var(--lime);color:var(--forest)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.sm{min-height:36px;padding:0 14px;font-size:13px}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.grid{display:grid;gap:16px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g21{grid-template-columns:2fr 1fr}
+.g12{grid-template-columns:1fr 1.4fr}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0}
+.card.dark{background:var(--forest);color:var(--off);border-color:transparent}
+.card.mint{background:var(--mint);border-color:transparent}
+.card h2{font-size:20px}
+.card .hd{display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.kpi .n{font-size:32px;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:6px}
+.kpi .s{font-size:13px;color:var(--slate);margin-top:2px}
+.kpi.dark .s{color:rgba(245,249,241,.7)}
+.kpi.dark .n{color:var(--lime)}
+.bar{height:8px;border-radius:99px;background:rgba(33,47,23,.08);overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;background:var(--forest);border-radius:99px;transition:width 1.2s var(--ease)}
+.dark .bar{background:rgba(245,249,241,.12)}.dark .bar i{background:var(--lime)}
+
+.alert{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.alert:first-of-type{border-top:0}
+.alert .dot{width:10px;height:10px;border-radius:50%;flex:none}
+.alert .t{flex:1;min-width:0}
+.alert b{font-weight:500}
+.alert span{display:block;font-size:13px;color:var(--slate)}
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qa button{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:14px;border-radius:14px;background:var(--off);text-align:left;min-height:96px;transition:background .2s,transform .15s}
+.qa button:hover{background:var(--mint)}
+.qa button:active{transform:scale(.98)}
+.qa svg{width:22px;height:22px;stroke:var(--forest);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.qa b{font-weight:500;font-size:14px}
+
+.impact-hero{position:relative;overflow:hidden;border-radius:20px;color:var(--off);min-height:250px;display:flex;align-items:flex-end;padding:24px;background:linear-gradient(160deg,#2c4a3a,#1c2b1f)}
+.impact-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .6s}
+.impact-hero img.on{opacity:1}
+.impact-hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,30,14,.1),rgba(20,30,14,.85))}
+.impact-hero > div{position:relative;z-index:1;width:100%}
+.big{font-size:clamp(44px,5vw,64px);letter-spacing:-.03em;color:var(--lime);line-height:1;font-variant-numeric:tabular-nums}
+.big small{font-size:.38em;color:var(--off);letter-spacing:0;margin-left:6px}
+
+/* table */
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.search{flex:1;min-width:200px;display:flex;align-items:center;gap:8px;min-height:42px;padding:0 14px;border-radius:99px;background:#fff;border:1px solid var(--line)}
+.search input{border:0;outline:none;flex:1;background:transparent;min-width:0}
+.sel{min-height:42px;border-radius:99px;border:1px solid var(--line);background:#fff;padding:0 14px;outline:none}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:#fff}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);font-size:14px;white-space:nowrap}
+th{font-weight:500;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate);background:#fafcf8;position:sticky;top:0}
+tbody tr{cursor:pointer;transition:background .15s}
+tbody tr:hover{background:#f6faf2}
+tbody tr.sel-row{background:#f1f9e1}
+td .nm b{font-weight:500;display:block}
+td .nm span{font-size:12px;color:var(--slate)}
+.ubar{width:120px;height:6px;border-radius:9px;background:rgba(33,47,23,.08);overflow:hidden;display:inline-block;vertical-align:middle;margin-right:8px}
+.ubar i{display:block;height:100%;background:var(--forest)}
+.ubar i.hi{background:var(--amber)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--forest);cursor:pointer}
+.bulk{display:none;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:var(--forest);color:var(--off);margin-bottom:12px;flex-wrap:wrap}
+.bulk.on{display:flex}
+.bulk .btn{background:rgba(245,249,241,.14)}
+.tfoot{display:flex;justify-content:space-between;padding:10px 4px;font-size:13px;color:var(--slate);flex-wrap:wrap;gap:8px}
+
+/* chart */
+.chart{display:flex;align-items:flex-end;gap:10px;height:180px;padding-top:10px}
+.chart .c{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.chart .c i{width:100%;max-width:46px;background:var(--forest);border-radius:8px 8px 3px 3px;height:0;transition:height 1s var(--ease)}
+.chart .c.now i{background:var(--lime)}
+.chart .c span{font-size:12px;color:var(--slate)}
+.chart .c b{font-size:12px;font-weight:500;font-variant-numeric:tabular-nums}
+
+/* ESG */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.facts div{background:rgba(245,249,241,.1);border-radius:12px;padding:12px}
+.facts b{display:block;font-size:22px;font-weight:500;color:var(--lime)}
+.facts span{font-size:12px;opacity:.8}
+.species{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.species span{background:var(--mint);border-radius:99px;padding:5px 11px;font-size:13px}
+.ideas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.idea{border-radius:var(--r);background:#fff;border:1px dashed rgba(75,42,122,.35);padding:18px;display:flex;flex-direction:column;gap:8px}
+.idea .e{font-size:26px}
+.idea h3{font-size:17px}
+.idea p{font-size:14px;color:var(--slate)}
+.rep-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:center}
+.rep-row:first-of-type{border-top:0}
+.rep-row b{font-weight:500;font-size:20px;font-variant-numeric:tabular-nums}
+
+/* leaderboard */
+.lb{display:flex;flex-direction:column;gap:10px}
+.lb .row{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:center}
+.lb .rk{width:28px;height:28px;border-radius:50%;background:var(--off);display:grid;place-items:center;font-size:13px}
+.lb .row:first-child .rk{background:var(--lime)}
+.lb .bar{margin-top:6px}
+
+/* drawer + modal */
+.ov{position:fixed;inset:0;background:rgba(15,22,10,.45);z-index:60;opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(480px,100%);background:var(--off);z-index:70;transform:translateX(105%);transition:transform .3s var(--ease);display:flex;flex-direction:column;box-shadow:-20px 0 40px -20px rgba(0,0,0,.3)}
+.drawer.on{transform:none}
+.drawer .dh{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--line)}
+.drawer .db{padding:20px 22px;overflow-y:auto;flex:1}
+.x{width:40px;height:40px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-size:16px}
+.field{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.field label{font-size:13px;color:var(--slate)}
+.field input,.field select{min-height:46px;border-radius:12px;border:1.5px solid var(--line);background:#fff;padding:0 12px;outline:none}
+.field input:focus,.field select:focus{border-color:var(--forest)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px;text-align:left}
+.opt.on{border-color:var(--forest);background:var(--mint)}
+.opt b{font-weight:500;display:block}
+.opt span{font-size:12px;color:var(--slate)}
+.steps{display:flex;flex-direction:column;gap:0;margin-top:14px}
+.steps div{display:grid;grid-template-columns:22px 1fr;column-gap:12px;padding-bottom:14px;position:relative}
+.steps div > *{grid-column:2}
+.steps div::before{grid-column:1;grid-row:1 / span 2;content:"";width:14px;height:14px;border-radius:50%;border:3px solid var(--forest);background:var(--off);margin-top:3px}
+.steps div.done::before{background:var(--lime)}
+.steps div:not(:last-child)::after{content:"";position:absolute;left:6px;top:20px;bottom:0;width:2px;background:var(--line)}
+.steps b{font-weight:500}
+.steps span{display:block;font-size:13px;color:var(--slate)}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.kv div{background:#fff;border-radius:12px;padding:12px;border:1px solid var(--line)}
+.kv span{font-size:12px;color:var(--slate);display:block}
+.kv b{font-weight:500;font-size:17px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.sw{width:46px;height:28px;border-radius:99px;background:rgba(33,47,23,.18);position:relative;transition:background .2s;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .2s var(--ease)}
+.sw.on{background:var(--forest)}.sw.on::after{transform:translateX(18px)}
+
+.modal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal.on{opacity:1;pointer-events:auto}
+.modal .box{background:var(--off);border-radius:22px;max-width:860px;width:100%;max-height:92vh;overflow:auto;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+.modal .mh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;gap:10px;flex-wrap:wrap}
+.cert{margin:0 20px 20px;background:#fff;border-radius:16px;padding:40px 44px;position:relative;overflow:hidden;border:1px solid var(--line)}
+.cert::before{content:"";position:absolute;inset:12px;border:1.5px solid var(--forest);border-radius:10px;pointer-events:none}
+.cert .wm{position:absolute;right:-40px;bottom:-40px;font-size:240px;opacity:.06}
+.cert .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.cert .w{font-size:22px}.cert .w b{color:#5f8a00;font-weight:500}
+.cert h2{font-size:clamp(26px,3.4vw,38px);margin-top:26px}
+.cert .co-n{font-size:22px;color:var(--slate);margin-top:6px}
+.cert .fig{font-size:64px;letter-spacing:-.03em;margin-top:18px;line-height:1}
+.cert .fig small{font-size:20px;color:var(--slate);letter-spacing:0;margin-left:6px}
+.cert .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}
+.cert .cols div{border-top:2px solid var(--forest);padding-top:8px}
+.cert .cols b{font-weight:500;display:block;font-size:20px}
+.cert .cols span{font-size:13px;color:var(--slate)}
+.cert .fine{font-size:12px;color:var(--muted);margin-top:24px}
+
+.toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-20px);z-index:90;background:var(--forest);color:var(--off);padding:12px 20px;border-radius:99px;opacity:0;pointer-events:none;transition:all .3s var(--ease);font-size:14px;box-shadow:0 12px 30px -10px rgba(0,0,0,.5);max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast b{color:var(--lime);font-weight:500}
+
+@media (max-width:1180px){
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ideas{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:1000px){
+  .shell{grid-template-columns:1fr}
+  .side{position:sticky;top:0;z-index:30;height:auto;flex-direction:row;align-items:center;padding:10px 14px;gap:8px;overflow-x:auto;scrollbar-width:none}
+  .side::-webkit-scrollbar{display:none}
+  .brand{padding:0 8px 0 4px;flex:none}
+  .brand .s{display:none}
+  .nav{flex-direction:row}
+  .nav button{min-height:40px;white-space:nowrap}
+  .nav .new{display:none}
+  .side .foot{display:none}
+  .topbar{top:60px}
+  .g21,.g12,.g3{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  .co{min-width:0;max-width:100%;flex:1 1 100%}
+  .co select{min-width:0;width:100%;text-overflow:ellipsis}
+  .page{padding:20px 16px 50px}
+  .topbar{padding:10px 16px}
+  .g4,.g2,.ideas,.qa{grid-template-columns:1fr}
+  .who span{display:none}
+  .facts,.cert .cols{grid-template-columns:1fr}
+  .nav button span.l{display:none}
+  .cert{padding:30px 24px}
+  .opts,.kv{grid-template-columns:1fr}
+}
+@media print{
+  body *{visibility:hidden}
+  #certPrint,#certPrint *{visibility:visible}
+  #certPrint{position:absolute;left:0;top:0;margin:0;width:100%;border:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div class="brand"><span class="w" id="word">eco<b>talk</b></span><span class="s">for Business</span></div>
+    <nav class="nav" id="nav">
+      <button data-v="overview" class="on"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span class="l">Overview</span></button>
+      <button data-v="sims"><svg viewBox="0 0 24 24"><path d="M7 2h7l5 5v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><rect x="8.5" y="11" width="7" height="7" rx="1"/></svg><span class="l">SIMs & people</span></button>
+      <button data-v="billing"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6M9 15h4"/></svg><span class="l">Usage & billing</span></button>
+      <button data-v="impact"><svg viewBox="0 0 24 24"><path d="M12 22V12M12 12C12 7 8 4 3 4c0 5 4 8 9 8zM12 14c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg><span class="l">Impact & ESG</span><span class="new">New</span></button>
+      <button data-v="team"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 7-6s7 2.5 7 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.5c3 0 6 1.8 6 5"/></svg><span class="l">Team & Wild Points</span></button>
+      <button data-v="account"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span class="l">Account & help</span></button>
+    </nav>
+    <div class="foot">Concept by Dan Jones<br>Not a live Ecotalk product<br><a href="./">← About this concept</a></div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <label class="co"><span class="lg" id="coLg">NO</span>
+        <select id="coSel" aria-label="Switch company">
+          <option value="small">Nettle & Oak Bakery · 12 SIMs (fictional)</option>
+          <option value="large">Kestrel Valley Engineering · 148 SIMs (fictional)</option>
+        </select>
+      </label>
+            <span class="sp"></span>
+      <span class="tag amber" title="Fictional companies, indicative prices">Concept · fictional data</span>
+      <div class="who"><span id="adminName">Priya Shah, account admin</span><span class="av" id="adminAv">PS</span></div>
+    </header>
+
+    <div class="page">
+
+      <!-- OVERVIEW -->
+      <section class="view on" id="v-overview">
+        <div class="ph"><div><div class="eyebrow" id="ovEyebrow">Thursday 29 October</div><h1 id="ovHello">Good evening, Priya</h1><p id="ovSub"></p></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn lime" data-act="add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a SIM</button><button class="btn ghost" data-act="cert">ESG certificate</button></div></div>
+        <div class="grid g4" id="kpis"></div>
+        <div class="grid g21" style="margin-top:16px">
+          <div class="impact-hero" id="ovHero"><img alt="" data-img="beaver"><div>
+            <div class="eyebrow" style="color:var(--lime)">Your company's land this year</div>
+            <div class="big" style="margin-top:8px"><span id="ovLand">0</span><small>m² restored at Bowyers Wood</small></div>
+            <p style="opacity:.88;margin-top:8px;max-width:520px" id="ovLandTxt"></p>
+            <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"><button class="btn lime sm" data-go="impact">See your impact</button><button class="btn sm" style="background:rgba(245,249,241,.16)" data-act="cert">Download certificate</button></div>
+          </div></div>
+          <div class="card">
+            <div class="hd"><h2>Needs attention</h2><span class="tag" id="alertCount"></span></div>
+            <div id="alerts"></div>
+          </div>
+        </div>
+        <div class="grid g12" style="margin-top:16px">
+          <div class="card"><div class="hd"><h2>Quick actions</h2></div>
+            <div class="qa">
+              <button data-act="add"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 8v6M9 11h6"/></svg><b>eSIM for a new starter</b><span class="muted" style="font-size:12px">Live within the hour</span></button>
+              <button data-act="invoice"><svg viewBox="0 0 24 24"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg><b>This month's invoice</b><span class="muted" style="font-size:12px">One bill, every SIM itemised</span></button>
+              <button data-go="sims" data-filter="cap"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><b>Set data caps</b><span class="muted" style="font-size:12px">No surprise bills</span></button>
+              <button data-act="lost"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><b>Lost or stolen phone</b><span class="muted" style="font-size:12px">Block a SIM instantly</span></button>
+            </div>
+          </div>
+          <div class="card"><div class="hd"><div><h2>Data across the company</h2><span class="muted" style="font-size:13px">GB per month, all SIMs</span></div><button class="btn ghost sm" data-go="billing">Usage & billing →</button></div><div class="chart" id="ovChart"></div></div>
+        </div>
+      </section>
+
+      <!-- SIMS -->
+      <section class="view" id="v-sims">
+        <div class="ph"><div><div class="eyebrow">Manage</div><h1>SIMs & people</h1><p>Every SIM in one place. Change plans, cap data, block a lost phone or send an eSIM to a new starter.</p></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn ghost" id="csvSims"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Export CSV</button><button class="btn lime" data-act="add"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a SIM</button></div></div>
+        <div class="tools">
+          <label class="search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" placeholder="Search name, number or team"></label>
+          <select class="sel" id="fTeam"></select>
+          <select class="sel" id="fSite"></select>
+          <select class="sel" id="fStatus"><option value="">All statuses</option><option>Active</option><option>eSIM sent</option><option>Porting</option><option>Blocked</option></select>
+        </div>
+        <div class="bulk" id="bulk"><b id="bulkN" style="font-weight:500"></b><span style="opacity:.6">selected</span><span style="flex:1"></span>
+          <select class="sel" id="bulkPlan" style="min-height:36px;background:rgba(245,249,241,.14);color:var(--off);border-color:transparent"><option value="">Change plan…</option></select>
+          <button class="btn sm" id="bulkCap">Cap at plan limit</button><button class="btn sm" id="bulkClear">Clear</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th style="width:40px"><input type="checkbox" id="all" aria-label="Select all"></th><th>Person</th><th>Number</th><th id="thSite">Site</th><th>Plan</th><th>Data this month</th><th>Status</th><th class="num">Monthly</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table></div>
+        <div class="tfoot"><span id="countTxt"></span><span>Prices indicative: today's Ecotalk plans, business pricing to be confirmed</span></div>
+      </section>
+
+      <!-- BILLING -->
+      <section class="view" id="v-billing">
+        <div class="ph"><div><div class="eyebrow">One account, one bill</div><h1>Usage & billing</h1><p>One invoice a month for the company, with every SIM itemised, as Ecotalk's business plans are set up to do. Split by team or site for your finance team.</p></div></div>
+        <div class="grid g3" id="billKpis"></div>
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card"><div class="hd"><h2>Invoices</h2><span class="tag">Monthly · 1 invoice</span></div><div id="invoices"></div></div>
+          <div class="card"><div class="hd"><h2 id="splitTitle">Cost by team</h2><span class="tag" id="splitTag">October</span></div><div id="split"></div></div>
+        </div>
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card"><div class="hd"><h2>Data by month</h2></div><div class="chart" id="billChart"></div></div>
+          <div class="card"><div class="hd"><h2>Heaviest users this month</h2><span class="tag">Data cap alerts on</span></div><div id="top"></div></div>
+        </div>
+      </section>
+
+      <!-- IMPACT -->
+      <section class="view" id="v-impact">
+        <div class="ph"><div><div class="eyebrow">What makes Ecotalk different</div><h1>Impact & ESG</h1><p>Your phone bill buys and restores land in Britain. Here's your company's share, the evidence for your annual report, and ideas for bringing your team along.</p></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn lime" data-act="cert">Download ESG certificate</button><button class="btn ghost" data-act="post">Copy LinkedIn post</button></div></div>
+
+        <div class="grid g21">
+          <div class="card dark" style="position:relative;overflow:hidden">
+            <div class="eyebrow" style="color:var(--lime)">Your company, this year</div>
+            <div class="big" style="margin-top:10px"><span id="imLand">0</span><small>m² of British land restored</small></div>
+            <p style="opacity:.85;margin-top:8px" id="imLandTxt"></p>
+            <div class="facts">
+              <div><b>2</b><span>reserves: Bowyers Wood, East Sussex and Downicary, Devon</span></div>
+              <div><b>0%</b><span>of profits paid out as dividends; they fund the land</span></div>
+              <div><b>100%</b><span>green energy powering Ecotalk's business, from Ecotricity</span></div>
+            </div>
+            <div class="bar" style="margin-top:18px"><i id="imBar" style="width:0"></i></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;opacity:.7;margin-top:6px;gap:10px;flex-wrap:wrap"><span id="imGoal"></span><span>Company figure is a concept</span></div>
+          </div>
+          <div class="card">
+            <div class="hd"><h2>What your bills are part of</h2><span class="tag mint">Real figures</span></div>
+            <div class="rep-row"><span>Beavers back in East Sussex, first time in 400 years</span><b>5 + kit</b></div>
+            <div class="rep-row"><span>Trees and shrubs planted at Downicary</span><b>3,500</b></div>
+            <div class="rep-row"><span>Tawny owl chicks ringed this summer</span><b>9</b></div>
+            <div class="rep-row"><span>Breeding bird species at Bowyers</span><b>37</b></div>
+            <div class="rep-row"><span>Tonnes of earth moved to make habitat</span><b>3,000</b></div>
+          </div>
+        </div>
+
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card">
+            <div class="hd"><div><h2>ESG report pack</h2><span class="muted" style="font-size:13px">Ready for your annual report, B Corp evidence or a tender's social value question</span></div><span class="tag amber">Concept</span></div>
+            <div class="toggle"><div><b style="font-weight:500">Nature impact certificate</b><span class="muted" style="display:block;font-size:13px">One page, your company name, this year's figures</span></div><button class="btn sm" data-act="cert">Preview</button></div>
+            <div class="toggle"><div><b style="font-weight:500">Plain-English impact statement</b><span class="muted" style="display:block;font-size:13px">150 words to paste into your report</span></div><button class="btn sm ghost" data-act="statement">Copy</button></div>
+            <div class="toggle"><div><b style="font-weight:500">Photo pack from the reserves</b><span class="muted" style="display:block;font-size:13px">Images cleared for customers to use</span></div><span class="tag itag">Idea</span></div>
+            <div class="toggle"><div><b style="font-weight:500">Email signature badge</b><span class="muted" style="display:block;font-size:13px">"Our phones help restore British nature"</span></div><button class="btn sm ghost" data-act="badge">Copy</button></div>
+          </div>
+          <div class="card">
+            <div class="hd"><div><h2>Who lives on the land you're helping</h2><span class="muted" style="font-size:13px">Recorded by the ecologists and camera traps</span></div></div>
+            <div class="eyebrow" style="margin-top:6px">Bowyers Wood, East Sussex</div>
+            <div class="species"><span>🦫 Beavers</span><span>🦉 Tawny owls</span><span>🦅 Goshawk</span><span>🦌 Deer</span><span>🦡 Badgers</span><span>🦇 Barbastelle bats</span><span>🐦 Lesser spotted woodpecker</span></div>
+            <div class="eyebrow" style="margin-top:14px">Downicary, Devon</div>
+            <div class="species"><span>🦦 Otters</span><span>🐦 Kingfishers</span><span>🦫 Wild beavers</span><span>🦌 Roe deer</span><span>🪶 Herons</span><span>🦆 Mallards</span></div>
+            <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap"><a class="btn sm" href="app.html" target="_blank" rel="noopener">Watch the NatureCams ↗</a></div>
+          </div>
+        </div>
+
+        <div class="ph" style="margin-top:32px;margin-bottom:14px"><div><div class="eyebrow">Suggestions for the business team</div><h1 style="font-size:24px">More ways to make the land count</h1></div><span class="tag itag">Ideas · not live</span></div>
+        <div class="ideas">
+          <div class="idea"><span class="e">🪧</span><h3>Adopt a patch</h3><p>Name a hectare at Bowyers or Downicary after the company, with a yearly survey of what's moved in. A visit, a sign and a story for the all-hands.</p></div>
+          <div class="idea"><span class="e">🥾</span><h3>Team volunteer days</h3><p>Planting and survey days at the reserves, booked from here. Counts towards CSR and wellbeing hours, and gives staff a reason to care.</p></div>
+          <div class="idea"><span class="e">🏆</span><h3>Team Wild Points</h3><p>Staff earn points in the members' app for sightings and challenges. Teams and sites compete, and winners pick where the next tree goes.</p></div>
+          <div class="idea"><span class="e">⚡</span><h3>Energy + mobile, one green account</h3><p>Ecotricity business energy and Ecotalk mobile together, with one combined impact report. The natural route through the Ecotricity business team.</p></div>
+          <div class="idea"><span class="e">♻️</span><h3>Old phones in</h3><p>Collect retired handsets for refurbishment or recycling and log the numbers in the ESG pack.</p></div>
+          <div class="idea"><span class="e">🎥</span><h3>Quarterly reserve update</h3><p>A short video from the reserves for company meetings, so the impact feels real, not just a number on a certificate.</p></div>
+          <div class="idea"><span class="e">📊</span><h3>Scope 3 data, done properly</h3><p>Mobile emissions data for supplier reporting, using a method agreed with Ecotalk before any figures are published. No guesswork.</p></div>
+          <div class="idea"><span class="e">🤝</span><h3>Refer a business</h3><p>When one Ecotricity business customer refers another, both get extra land restored in their name.</p></div>
+          <div class="idea"><span class="e">🏛️</span><h3>Tender-ready wording</h3><p>Pre-written answers for public-sector social value and environmental questions, backed by the figures above.</p></div>
+        </div>
+      </section>
+
+      <!-- TEAM -->
+      <section class="view" id="v-team">
+        <div class="ph"><div><div class="eyebrow">Bring your people along</div><h1>Team & Wild Points</h1><p>Staff use the Ecotalk Wild app on their work phones. Their sightings and challenges add up for the company.</p></div><span class="tag amber">Concept</span></div>
+        <div class="grid g2">
+          <div class="card"><div class="hd"><h2 id="lbTitle">Leaderboard</h2><span class="tag">October</span></div><div class="lb" id="lb"></div></div>
+          <div class="card mint">
+            <div class="eyebrow">Company challenge · this month</div>
+            <h2 style="font-size:24px;margin-top:6px">Hear a tawny owl</h2>
+            <p class="muted" style="margin-top:6px">Owls are claiming territories now. Every member of staff who logs one in the app adds 10 points to their team.</p>
+            <div class="bar" style="margin-top:16px;background:rgba(33,47,23,.12)"><i id="chBar" style="width:0"></i></div>
+            <p style="font-size:13px;margin-top:6px" id="chTxt"></p>
+            <a class="btn sm" href="app.html" target="_blank" rel="noopener" style="margin-top:14px">Open the members' app ↗</a>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="hd"><div><h2>Volunteer days for your team</h2><span class="muted" style="font-size:13px">Up to 15 people per day · transport not included</span></div><span class="tag amber">Concept dates</span></div>
+          <div class="grid g3" id="vdays"></div>
+        </div>
+      </section>
+
+      <!-- ACCOUNT -->
+      <section class="view" id="v-account">
+        <div class="ph"><div><div class="eyebrow">Account & help</div><h1>Your account</h1></div></div>
+        <div class="grid g3">
+          <div class="card"><div class="eyebrow">Promise</div><h2 style="margin-top:6px">No price rises, ever</h2><p class="muted" style="margin-top:6px">The same promise Ecotalk makes to every customer. No mid-contract surprises.</p></div>
+          <div class="card"><div class="eyebrow">Support</div><h2 style="margin-top:6px">A real team in Stroud</h2><p class="muted" style="margin-top:6px">UK-based support at Lion House, Stroud. Business customers get a named contact.</p><span class="tag amber" style="margin-top:10px">Named contact is a concept</span></div>
+          <div class="card"><div class="eyebrow">Network</div><h2 style="margin-top:6px">Runs on EE's network</h2><p class="muted" style="margin-top:6px">UK coverage on EE. eSIM supported, with new SIMs live within the hour.</p></div>
+        </div>
+        <div class="grid g2" style="margin-top:16px">
+          <div class="card"><div class="hd"><h2>Admins and permissions</h2><button class="btn sm ghost" id="addAdmin">Invite admin</button></div><div id="admins"></div></div>
+          <div class="card dark" style="position:relative;overflow:hidden">
+            <div class="eyebrow" style="color:var(--lime)">From the Ecotricity business team</div>
+            <h2 style="font-size:24px;margin-top:6px">Energy and mobile on one green account</h2>
+            <p style="opacity:.85;margin-top:8px">Already buying energy from Ecotricity? Add mobile and get one combined impact report for both.</p>
+            <button class="btn lime" style="margin-top:16px" id="bundle">Ask about a bundle</button>
+            <p style="font-size:12px;opacity:.6;margin-top:10px">Idea for discussion, not a live offer</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ov"></div>
+<aside class="drawer" id="drawer" aria-modal="true" role="dialog"><div class="dh"><h2 id="dTitle" style="font-size:20px"></h2><button class="x" id="dX" aria-label="Close">✕</button></div><div class="db" id="dBody"></div></aside>
+<div class="modal" id="modal" role="dialog" aria-modal="true"><div class="box"><div class="mh"><h2 style="font-size:20px">Nature impact certificate</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn lime sm" id="printCert">Save as PDF</button><button class="btn ghost sm" data-act="post">Copy LinkedIn post</button><button class="x" id="mX" aria-label="Close">✕</button></div></div><div class="cert" id="certPrint"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+"use strict";
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const gbp = n => "£" + n.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt = n => Math.round(n).toLocaleString("en-GB");
+
+const DATO = "https://www.datocms-assets.com/161871/";
+const IMGS = { beaver: "1753171722-ecotalk-smallcarousel-one-bowyers1.jpg", bowyers: "1753173836-ecotalk-locations-bowyersx2.jpg" };
+$$("img[data-img]").forEach(im => { im.onload = () => im.classList.add("on"); im.src = DATO + IMGS[im.dataset.img] + "?w=1600&auto=format&fit=max"; });
+const lg = new Image(); lg.onload = () => { $("#word").innerHTML = `<img src="assets/logo_white.png" alt="Ecotalk" style="height:28px">`; }; lg.src = "assets/logo_white.png";
+
+/* ---------- indicative plans (today's Ecotalk prices, inc VAT) ---------- */
+const PLANS = { "10GB": { p: 12, cap: 10 }, "30GB": { p: 14, cap: 30 }, "100GB": { p: 18, cap: 100 }, "Unlimited": { p: 22, cap: 0 } };
+
+/* ---------- fictional companies ---------- */
+const COMPANIES = {
+  small: { name: "Nettle & Oak Bakery", short: "NO", sims: 12, admin: ["Priya Shah", "PS"], sites: ["Stroud"], teams: ["Bakery", "Shop", "Delivery", "Office"], seed: 7,
+    planMix: [["10GB", .5], ["30GB", .3], ["Unlimited", .2]] },
+  large: { name: "Kestrel Valley Engineering", short: "KV", sims: 148, admin: ["Tom Okafor", "TO"], sites: ["Stroud", "Bristol", "Swindon"], teams: ["Field engineers", "Workshop", "Sales", "Office", "Directors"], seed: 42,
+    planMix: [["10GB", .25], ["30GB", .3], ["100GB", .25], ["Unlimited", .2]] }
+};
+const FIRST = ["Amira","Ben","Chloe","Dev","Ella","Finn","Grace","Harry","Isla","Jack","Kiran","Lily","Mo","Nina","Oscar","Poppy","Raj","Sophie","Theo","Uma","Will","Zara","Alfie","Bea","Cal","Daisy","Ewan","Freya","George","Hana","Ivan","Jess","Kofi","Leah","Max","Niamh","Owen","Priti","Rory","Sian"];
+const LAST = ["Ahmed","Brown","Clarke","Davies","Evans","Fisher","Green","Hughes","Iqbal","Jones","Khan","Lewis","Morgan","Nash","Owen","Patel","Quinn","Reid","Singh","Taylor","Usher","Vaughan","Walsh","Young"];
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function build(key) {
+  const c = COMPANIES[key], r = rng(c.seed), pick = a => a[Math.floor(r() * a.length)];
+  const sims = [];
+  for (let i = 0; i < c.sims; i++) {
+    let x = r(), plan = c.planMix[c.planMix.length - 1][0];
+    for (const [p, w] of c.planMix) { if ((x -= w) < 0) { plan = p; break; } }
+    const cap = PLANS[plan].cap;
+    const used = cap ? +(cap * (0.15 + r() * 0.8)).toFixed(1) : +(8 + r() * 55).toFixed(1);
+    const fn = FIRST[(i * 7 + c.seed) % FIRST.length], ln = pick(LAST);
+    const team = i === 0 ? (key === "large" ? "Directors" : "Office") : pick(c.teams);
+    sims.push({ id: key + i, name: `${fn} ${ln}`, team, site: c.sites.length > 1 ? pick(c.sites) : c.sites[0],
+      num: `07${Math.floor(r() * 900 + 100)} ••• ${Math.floor(r() * 900 + 100)}`, plan, used, status: "Active", capOn: r() < .5, esim: r() < .6 });
+  }
+  // a few realistic states
+  sims[3].status = "eSIM sent"; sims[3].used = 0;
+  sims[5].status = "Porting"; sims[5].used = 0.4;
+  if (c.sims > 20) { sims[17].status = "Blocked"; sims[17].used = 2.1; sims[31].status = "eSIM sent"; sims[31].used = 0; }
+  const nearCap = sims.filter(s => PLANS[s.plan].cap && s.used / PLANS[s.plan].cap > .85 && s.status === "Active");
+  return { c, sims, nearCap };
+}
+let co, D;
+function setCo(key) {
+  co = key; D = build(key);
+  const c = D.c;
+  $("#coLg").textContent = c.short; $("#adminName").textContent = `${c.admin[0]}, account admin`; $("#adminAv").textContent = c.admin[1];
+  $("#coSel").value = key;
+  try { localStorage.setItem("ecb-co", key); } catch (e) {}
+  renderAll();
+}
+
+/* ---------- maths ---------- */
+const monthly = () => D.sims.filter(s => s.status !== "Blocked").reduce((a, s) => a + PLANS[s.plan].p, 0);
+const totalGB = () => D.sims.reduce((a, s) => a + s.used, 0);
+const landM2 = () => D.sims.length * 4.2;          // concept: same 4.2 m² per SIM per year as the members' app
+const HISTORY = k => { const base = totalGB(); const f = k === "small" ? [.78, .81, .9, .95, .88, 1] : [.82, .86, .91, .97, .93, 1]; return f.map(x => base * x); };
+const MONTHS = ["May", "Jun", "Jul", "Aug", "Sep", "Oct"];
+
+/* ---------- toast ---------- */
+let tt; function toast(h) { const t = $("#toast"); t.innerHTML = h; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2600); }
+function countTo(el, to, dec = 0, dur = 1200) { const t0 = performance.now(); const f = t => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3), v = to * e; el.textContent = dec ? v.toFixed(dec) : fmt(v); if (p < 1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
+function copy(text, label) { (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => toast(`<b>Copied</b> ${label}`)).catch(() => toast(`<b>${label}</b> ready to copy`)); }
+function download(name, text, type = "text/csv") { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
+
+/* ---------- nav ---------- */
+function go(v) {
+  $$(".view").forEach(x => x.classList.toggle("on", x.id === "v-" + v));
+  $$("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
+  if (v === "impact") animImpact();
+  if (v === "billing") anim("#billChart");
+  if (v === "team") animTeam();
+  history.replaceState(null, "", "#" + v);
+}
+$("#nav").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (b) go(b.dataset.v); });
+document.addEventListener("click", e => {
+  const g = e.target.closest("[data-go]");
+  if (g) { if (g.dataset.filter === "cap") { capView = true; } go(g.dataset.go); if (g.dataset.filter === "cap") { renderRows(); toast("<b>Tip</b> pick a person to switch their data cap on"); } return; }
+  const a = e.target.closest("[data-act]"); if (!a) return;
+  ({ add: openAdd, cert: openCert, invoice: () => openInvoice(0), lost: openLost, post: copyPost, statement: copyStatement, badge: copyBadge })[a.dataset.act]?.();
+});
+$("#coSel").addEventListener("change", e => setCo(e.target.value));
+
+/* ---------- OVERVIEW ---------- */
+function renderOverview() {
+  const c = D.c, hr = new Date().getHours();
+  $("#ovHello").textContent = `Good ${hr < 12 ? "morning" : hr < 18 ? "afternoon" : "evening"}, ${c.admin[0].split(" ")[0]}`;
+  $("#ovEyebrow").textContent = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  $("#ovSub").textContent = `${c.name} · ${D.sims.length} SIMs${c.sites.length > 1 ? " across " + c.sites.length + " sites" : ""} · one monthly invoice`;
+  const active = D.sims.filter(s => s.status === "Active").length;
+  $("#kpis").innerHTML = [
+    ["Active SIMs", fmt(active), `${D.sims.length - active} pending or blocked`, ""],
+    ["Data this month", fmt(totalGB()) + " GB", `${D.nearCap.length} people near their limit`, ""],
+    ["October bill", gbp(monthly()), "Due 1 Nov · no price rises", ""],
+    ["Land restored this year", fmt(landM2()) + " m²", "Bowyers Wood, East Sussex", "dark"]
+  ].map(([l, n, s, cls]) => `<div class="card kpi ${cls}"><div class="eyebrow" ${cls ? 'style="color:var(--lime)"' : ""}>${l}</div><div class="n">${n}</div><div class="s">${s}</div></div>`).join("");
+  countTo($("#ovLand"), landM2());
+  const courts = landM2() / 261;
+  $("#ovLandTxt").textContent = courts >= 1 ? `About ${courts.toFixed(1)} tennis courts of woodland and wetland, paid for by your phone bills. Beavers, owls and goshawks live there.` : `About ${Math.round(landM2() / 13)} parking spaces' worth of woodland and wetland, paid for by your phone bills. Beavers, owls and goshawks live there.`;
+  const al = [];
+  D.sims.filter(s => s.status === "eSIM sent").forEach(s => al.push(["var(--cyan)", `${s.name}: eSIM sent`, "New starter · welcome email within 30 min, live within the hour", s.id]));
+  D.sims.filter(s => s.status === "Porting").forEach(s => al.push(["var(--lime)", `${s.name}: number moving over`, "Completes next working day", s.id]));
+  D.nearCap.slice(0, 3).forEach(s => al.push(["var(--amber)", `${s.name} is near their data limit`, `${s.used} of ${PLANS[s.plan].cap} GB · ${s.capOn ? "cap is on" : "cap is off, may go over"}`, s.id]));
+  D.sims.filter(s => s.status === "Blocked").forEach(s => al.push(["var(--red)", `${s.name}: SIM blocked`, "Reported lost · order a replacement", s.id]));
+  $("#alertCount").textContent = al.length + " items";
+  $("#alerts").innerHTML = al.slice(0, 5).map(([c, b, s, id]) => `<div class="alert"><span class="dot" style="background:${c}"></span><div class="t"><b>${esc(b)}</b><span>${s}</span></div><button class="btn ghost sm" data-sim="${id}">View</button></div>`).join("");
+  chart("#ovChart", HISTORY(co));
+}
+function chart(sel, vals) {
+  const max = Math.max(...vals);
+  $(sel).innerHTML = vals.map((v, i) => `<div class="c ${i === vals.length - 1 ? "now" : ""}"><b>${fmt(v)}</b><i data-h="${(v / max) * 100}"></i><span>${MONTHS[i]}</span></div>`).join("");
+  anim(sel);
+}
+function anim(sel) { $$(sel + " i[data-h]").forEach(i => { i.style.height = "0"; requestAnimationFrame(() => setTimeout(() => i.style.height = `calc(${i.dataset.h}% - 40px)`, 40)); }); }
+document.addEventListener("click", e => { const b = e.target.closest("[data-sim]"); if (b) openSim(b.dataset.sim); });
+
+/* ---------- SIMS ---------- */
+let sel = new Set(), capView = false;
+function renderFilters() {
+  const c = D.c;
+  $("#fTeam").innerHTML = `<option value="">All teams</option>` + c.teams.map(t => `<option>${t}</option>`).join("");
+  $("#fSite").innerHTML = `<option value="">All sites</option>` + c.sites.map(t => `<option>${t}</option>`).join("");
+  $("#fSite").style.display = c.sites.length > 1 ? "" : "none";
+  $("#thSite").textContent = c.sites.length > 1 ? "Site · team" : "Team";
+  $("#bulkPlan").innerHTML = `<option value="">Change plan…</option>` + Object.keys(PLANS).map(p => `<option>${p}</option>`).join("");
+}
+function statusTag(s) { return { "Active": "mint", "eSIM sent": "lime", "Porting": "amber", "Blocked": "red" }[s] || ""; }
+function filtered() {
+  const q = $("#q").value.trim().toLowerCase(), t = $("#fTeam").value, si = $("#fSite").value, st = $("#fStatus").value;
+  let list = D.sims.filter(s => (!q || (s.name + s.num + s.team + s.site).toLowerCase().includes(q)) && (!t || s.team === t) && (!si || s.site === si) && (!st || s.status === st));
+  if (capView) list = list.slice().sort((a, b) => (PLANS[b.plan].cap ? b.used / PLANS[b.plan].cap : 0) - (PLANS[a.plan].cap ? a.used / PLANS[a.plan].cap : 0));
+  return list;
+}
+function renderRows() {
+  const list = filtered(), multi = D.c.sites.length > 1;
+  $("#rows").innerHTML = list.map(s => {
+    const cap = PLANS[s.plan].cap, pct = cap ? Math.min(100, s.used / cap * 100) : Math.min(100, s.used / 80 * 100);
+    return `<tr data-row="${s.id}" class="${sel.has(s.id) ? "sel-row" : ""}">
+      <td onclick="event.stopPropagation()"><input type="checkbox" data-chk="${s.id}" ${sel.has(s.id) ? "checked" : ""} aria-label="Select ${esc(s.name)}"></td>
+      <td><div class="nm"><b>${esc(s.name)}</b><span>${s.esim ? "eSIM" : "Physical SIM"}${s.capOn ? " · cap on" : ""}</span></div></td>
+      <td>${s.num}</td>
+      <td>${multi ? `${s.site} · ${s.team}` : s.team}</td>
+      <td>${s.plan}</td>
+      <td><span class="ubar"><i class="${cap && pct > 85 ? "hi" : ""}" style="width:${pct}%"></i></span>${s.used} GB${cap ? ` <span class="muted">/ ${cap}</span>` : ""}</td>
+      <td><span class="tag ${statusTag(s.status)}">${s.status}</span></td>
+      <td class="num">${s.status === "Blocked" ? "–" : gbp(PLANS[s.plan].p)}</td></tr>`;
+  }).join("") || `<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--slate)">No one matches that search.</td></tr>`;
+  $("#countTxt").textContent = `Showing ${list.length} of ${D.sims.length} SIMs`;
+  $("#all").checked = list.length > 0 && list.every(s => sel.has(s.id));
+  renderBulk();
+}
+function renderBulk() { $("#bulk").classList.toggle("on", sel.size > 0); $("#bulkN").textContent = sel.size; }
+["#q", "#fTeam", "#fSite", "#fStatus"].forEach(s => $(s).addEventListener("input", renderRows));
+$("#rows").addEventListener("click", e => {
+  const c = e.target.closest("[data-chk]");
+  if (c) { c.checked ? sel.add(c.dataset.chk) : sel.delete(c.dataset.chk); c.closest("tr").classList.toggle("sel-row", c.checked); renderBulk(); return; }
+  const r = e.target.closest("[data-row]"); if (r) openSim(r.dataset.row);
+});
+$("#all").addEventListener("change", e => { filtered().forEach(s => e.target.checked ? sel.add(s.id) : sel.delete(s.id)); renderRows(); });
+$("#bulkClear").onclick = () => { sel.clear(); renderRows(); };
+$("#bulkPlan").onchange = e => { const p = e.target.value; if (!p) return; D.sims.forEach(s => sel.has(s.id) && (s.plan = p)); toast(`<b>${sel.size} SIMs</b> moved to ${p} from the next bill`); sel.clear(); e.target.value = ""; renderAll(); };
+$("#bulkCap").onclick = () => { D.sims.forEach(s => sel.has(s.id) && (s.capOn = true)); toast(`<b>Data caps on</b> for ${sel.size} SIMs`); sel.clear(); renderAll(); };
+$("#csvSims").onclick = () => {
+  const rows = [["Name", "Number", "Site", "Team", "Plan", "Data used GB", "Status", "Monthly £"]].concat(D.sims.map(s => [s.name, s.num, s.site, s.team, s.plan, s.used, s.status, s.status === "Blocked" ? 0 : PLANS[s.plan].p]));
+  download(`${D.c.name.replace(/\W+/g, "-")}-SIMs.csv`, rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n")); toast("<b>CSV downloaded</b> sample data");
+};
+
+/* ---------- drawer ---------- */
+function openDrawer(title, html) { $("#dTitle").textContent = title; $("#dBody").innerHTML = html; $("#drawer").classList.add("on"); $("#ov").classList.add("on"); $("#dBody").scrollTop = 0; }
+function closeDrawer() { $("#drawer").classList.remove("on"); if (!$("#modal").classList.contains("on")) $("#ov").classList.remove("on"); }
+$("#dX").onclick = closeDrawer;
+$("#ov").onclick = () => { closeDrawer(); closeModal(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape") { closeDrawer(); closeModal(); } });
+
+function openSim(id) {
+  const s = D.sims.find(x => x.id === id); if (!s) return;
+  const cap = PLANS[s.plan].cap;
+  openDrawer(s.name, `
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="tag ${statusTag(s.status)}">${s.status}</span><span class="tag">${s.esim ? "eSIM" : "Physical SIM"}</span><span class="tag">${s.site} · ${s.team}</span></div>
+    <div class="kv"><div><span>Number</span><b>${s.num}</b></div><div><span>Data this month</span><b>${s.used} GB${cap ? " / " + cap : ""}</b></div><div><span>Plan</span><b>${s.plan}</b></div><div><span>Monthly</span><b>${gbp(PLANS[s.plan].p)}</b></div></div>
+    ${s.status === "eSIM sent" ? `<div class="steps"><div class="done"><b>eSIM ordered</b><span>Just now</span></div><div class="done"><b>Welcome email sent</b><span>Within 30 minutes</span></div><div><b>Live on the network</b><span>Within the hour of installing</span></div></div>` : ""}
+    ${s.status === "Porting" ? `<div class="steps"><div class="done"><b>PAC code received</b><span>Their old number is on its way</span></div><div><b>Number moves over</b><span>Next working day</span></div></div>` : ""}
+    <h3 style="font-size:16px;margin-top:20px">Change plan</h3>
+    <div class="opts" style="margin-top:8px" id="dPlans">${Object.entries(PLANS).map(([k, v]) => `<button class="opt ${k === s.plan ? "on" : ""}" data-p="${k}"><b>${k}</b><span>${gbp(v.p)} a month</span></button>`).join("")}</div>
+    <p class="muted" id="dPlanMsg" style="font-size:13px;margin-top:8px">Changes apply from the next bill.</p>
+    <div style="margin-top:16px">
+      <div class="toggle"><div><b style="font-weight:500">Data cap</b><span class="muted" style="display:block;font-size:13px">Stop at the plan limit, never a surprise charge</span></div><button class="sw ${s.capOn ? "on" : ""}" id="dCap" aria-label="Data cap"></button></div>
+      <div class="toggle"><div><b style="font-weight:500">Roaming</b><span class="muted" style="display:block;font-size:13px">Business roaming bundles to be announced</span></div><button class="sw" id="dRoam" aria-label="Roaming"></button></div>
+      <div class="toggle"><div><b style="font-weight:500">Premium-rate numbers</b><span class="muted" style="display:block;font-size:13px">Blocked by default</span></div><button class="sw" id="dPrem" aria-label="Premium numbers"></button></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+      ${s.status === "Blocked" ? `<button class="btn lime" id="dRepl">Send a replacement eSIM</button>` : `<button class="btn ghost" id="dEsim">Resend eSIM QR code</button><button class="btn" style="background:var(--red)" id="dBlock">Block: lost or stolen</button>`}
+    </div>`);
+  $("#dPlans").onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return; s.plan = b.dataset.p; $$("#dPlans .opt").forEach(x => x.classList.toggle("on", x === b)); $("#dPlanMsg").innerHTML = `<b style="font-weight:500;color:var(--forest)">✓ ${s.plan}</b> from the next bill.`; renderAll(); };
+  $("#dCap").onclick = function () { s.capOn = !s.capOn; this.classList.toggle("on", s.capOn); toast(s.capOn ? "<b>Data cap on</b>" : "Data cap off"); renderRows(); };
+  ["#dRoam", "#dPrem"].forEach(k => $(k).onclick = function () { this.classList.toggle("on"); });
+  if ($("#dEsim")) $("#dEsim").onclick = () => toast(`<b>QR code sent</b> to ${esc(s.name.split(" ")[0])}'s work email`);
+  if ($("#dBlock")) $("#dBlock").onclick = function () {
+    if (!this.dataset.arm) { this.dataset.arm = 1; this.textContent = "Tap again to block now"; return; }
+    s.status = "Blocked"; renderAll(); openSim(id); toast(`<b>SIM blocked</b> no calls or data until replaced`);
+  };
+  if ($("#dRepl")) $("#dRepl").onclick = () => { s.status = "eSIM sent"; s.esim = true; renderAll(); openSim(id); toast("<b>Replacement eSIM sent</b> same number, live within the hour"); };
+}
+function openLost() {
+  openDrawer("Lost or stolen phone", `<p class="muted">Pick the person and their SIM is blocked straight away. Their number is kept for the replacement.</p>
+    <div class="field"><label>Who's lost their phone?</label><select id="lostWho">${D.sims.filter(s => s.status === "Active").map(s => `<option value="${s.id}">${esc(s.name)} · ${s.team}</option>`).join("")}</select></div>
+    <button class="btn" style="background:var(--red);margin-top:16px" id="lostGo">Block this SIM</button>`);
+  $("#lostGo").onclick = () => { const s = D.sims.find(x => x.id === $("#lostWho").value); s.status = "Blocked"; renderAll(); openSim(s.id); toast(`<b>${esc(s.name)}</b> blocked`); };
+}
+
+/* ---------- add SIM ---------- */
+function openAdd() {
+  const c = D.c; let plan = "30GB", type = "esim";
+  openDrawer("Add a SIM", `
+    <p class="muted">For a new starter, or a phone moving across from another network.</p>
+    <div class="field"><label for="aName">Name</label><input id="aName" placeholder="e.g. Alex Morgan" autocomplete="off"></div>
+    <div class="field"><label for="aEmail">Work email (the eSIM goes here)</label><input id="aEmail" type="email" placeholder="alex@company.co.uk" autocomplete="off"></div>
+    <div class="opts" style="margin-top:14px">
+      <div class="field" style="margin:0"><label>Team</label><select id="aTeam">${c.teams.map(t => `<option>${t}</option>`).join("")}</select></div>
+      <div class="field" style="margin:0"><label>Site</label><select id="aSite">${c.sites.map(t => `<option>${t}</option>`).join("")}</select></div>
+    </div>
+    <h3 style="font-size:15px;margin-top:18px">SIM type</h3>
+    <div class="opts" style="margin-top:8px" id="aType"><button class="opt on" data-t="esim"><b>eSIM</b><span>Live within the hour</span></button><button class="opt" data-t="phys"><b>Physical SIM</b><span>Posted next working day</span></button></div>
+    <h3 style="font-size:15px;margin-top:18px">Plan</h3>
+    <div class="opts" style="margin-top:8px" id="aPlan">${Object.entries(PLANS).map(([k, v]) => `<button class="opt ${k === plan ? "on" : ""}" data-p="${k}"><b>${k}</b><span>${gbp(v.p)} a month</span></button>`).join("")}</div>
+    <div class="toggle" style="margin-top:14px"><div><b style="font-weight:500">Keeping an existing number?</b><span class="muted" style="display:block;font-size:13px">Add their PAC code and it moves the next working day</span></div><button class="sw" id="aPort" aria-label="Port a number"></button></div>
+    <div class="field" id="aPacF" style="display:none"><label for="aPac">PAC code</label><input id="aPac" placeholder="e.g. ABC123456" autocomplete="off"></div>
+    <button class="btn lime" style="margin-top:20px;width:100%" id="aGo">Add to the account</button>
+    <p class="muted" style="font-size:12px;margin-top:8px">Timings as confirmed by Ecotalk customer service, Oct 2026. Prices indicative.</p>`);
+  $("#aType").onclick = e => { const b = e.target.closest("[data-t]"); if (!b) return; type = b.dataset.t; $$("#aType .opt").forEach(x => x.classList.toggle("on", x === b)); };
+  $("#aPlan").onclick = e => { const b = e.target.closest("[data-p]"); if (!b) return; plan = b.dataset.p; $$("#aPlan .opt").forEach(x => x.classList.toggle("on", x === b)); };
+  $("#aPort").onclick = function () { this.classList.toggle("on"); $("#aPacF").style.display = this.classList.contains("on") ? "" : "none"; };
+  $("#aGo").onclick = () => {
+    const name = $("#aName").value.trim() || "New starter", port = $("#aPort").classList.contains("on");
+    const s = { id: co + "n" + Date.now(), name, team: $("#aTeam").value, site: $("#aSite").value, num: port ? "Moving across" : "07••• ••• new", plan, used: 0, status: port ? "Porting" : "eSIM sent", capOn: true, esim: type === "esim" };
+    D.sims.unshift(s); renderAll();
+    $("#dBody").innerHTML = `<div style="text-align:center;padding:10px 0 4px"><div style="font-size:60px">📲</div><h2 style="margin-top:6px">${type === "esim" ? "eSIM on its way" : "SIM in the post"}</h2><p class="muted" style="margin-top:6px">${esc(name)} · ${plan} · ${s.team}</p></div>
+      <div class="steps" style="margin-top:18px">
+        <div class="done"><b>Added to ${esc(D.c.name)}</b><span>Just now · on this month's invoice</span></div>
+        ${type === "esim" ? `<div class="done"><b>Welcome email</b><span>Within 30 minutes</span></div><div><b>eSIM live</b><span>Within the hour of installing</span></div>` : `<div><b>Posted</b><span>Next working day</span></div>`}
+        ${port ? `<div><b>Old number moves over</b><span>Next working day</span></div>` : ""}
+        <div><b>Land restored in your name</b><span>+4.2 m² a year added to your ESG report</span></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap"><button class="btn" data-go="sims" onclick="document.getElementById('dX').click()">See them in SIMs & people</button><button class="btn ghost" id="aMore">Add another</button></div>`;
+    $("#aMore").onclick = openAdd;
+    toast(`<b>${esc(name)}</b> added`);
+  };
+}
+
+/* ---------- BILLING ---------- */
+function renderBilling() {
+  const m = monthly(), c = D.c, multi = c.sites.length > 1;
+  $("#billKpis").innerHTML = [
+    ["October invoice", gbp(m), `${D.sims.filter(s => s.status !== "Blocked").length} SIMs · due 1 Nov`],
+    ["Average per SIM", gbp(m / Math.max(1, D.sims.filter(s => s.status !== "Blocked").length)), "Same price every month: no rises"],
+    ["Extra charges", gbp(0), "Data caps on, premium numbers blocked"]
+  ].map(([l, n, s]) => `<div class="card kpi"><div class="eyebrow">${l}</div><div class="n">${n}</div><div class="s">${s}</div></div>`).join("");
+  const inv = [["October 2026", m, "Due 1 Nov", "amber"], ["September 2026", m * .97, "Paid", "mint"], ["August 2026", m * .95, "Paid", "mint"]];
+  $("#invoices").innerHTML = inv.map(([mo, v, st, t], i) => `<div class="alert"><div class="t"><b>${mo}</b><span>One invoice · every SIM itemised · inc. VAT ${gbp(v / 6)}</span></div><span class="tag ${t}">${st}</span><b style="font-weight:500;font-variant-numeric:tabular-nums;min-width:90px;text-align:right">${gbp(v)}</b><button class="btn ghost sm" data-inv="${i}">Breakdown</button></div>`).join("");
+  const key = multi ? "site" : "team"; $("#splitTitle").textContent = multi ? "Cost by site" : "Cost by team";
+  const by = {}; D.sims.forEach(s => { if (s.status === "Blocked") return; by[s[key]] = (by[s[key]] || 0) + PLANS[s.plan].p; });
+  const mx = Math.max(...Object.values(by));
+  $("#split").innerHTML = Object.entries(by).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div style="padding:8px 0"><div style="display:flex;justify-content:space-between"><span>${k}</span><b style="font-weight:500">${gbp(v)}</b></div><div class="bar" style="margin-top:6px"><i style="width:${v / mx * 100}%"></i></div></div>`).join("");
+  chart("#billChart", HISTORY(co));
+  const top = D.sims.filter(s => s.status === "Active").slice().sort((a, b) => b.used - a.used).slice(0, 5);
+  $("#top").innerHTML = top.map(s => `<div class="alert"><div class="t"><b>${esc(s.name)}</b><span>${s.team} · ${s.plan}</span></div><b style="font-weight:500">${s.used} GB</b><button class="btn ghost sm" data-sim="${s.id}">Manage</button></div>`).join("");
+}
+document.addEventListener("click", e => { const b = e.target.closest("[data-inv]"); if (b) openInvoice(+b.dataset.inv); });
+function openInvoice(i) {
+  const f = [1, .97, .95][i], mo = ["October", "September", "August"][i], c = D.c, multi = c.sites.length > 1;
+  const groups = {}; D.sims.filter(s => s.status !== "Blocked").forEach(s => { const k = multi ? s.site : s.team; (groups[k] = groups[k] || []).push(s); });
+  const total = monthly() * f;
+  openDrawer(`${mo} 2026 invoice`, `
+    <div class="kv" style="margin-top:0"><div><span>Total inc. VAT</span><b>${gbp(total)}</b></div><div><span>of which VAT</span><b>${gbp(total / 6)}</b></div></div>
+    <p class="muted" style="font-size:13px;margin-top:10px">One invoice for ${esc(c.name)}, with every SIM listed and grouped by ${multi ? "site" : "team"}.</p>
+    ${Object.entries(groups).map(([k, list]) => `<h3 style="font-size:15px;margin-top:18px;display:flex;justify-content:space-between"><span>${k}</span><span>${gbp(list.reduce((a, s) => a + PLANS[s.plan].p, 0) * f)}</span></h3>
+      <div style="margin-top:6px">${list.slice(0, 8).map(s => `<div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--line);font-size:14px"><span>${esc(s.name)} <span class="muted">· ${s.plan}</span></span><span>${gbp(PLANS[s.plan].p * f)}</span></div>`).join("")}${list.length > 8 ? `<div class="muted" style="font-size:13px;padding:6px 0">+ ${list.length - 8} more</div>` : ""}</div>`).join("")}
+    <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap"><button class="btn" id="invCsv">Download CSV</button><button class="btn ghost" id="invPdf">Download PDF</button></div>`);
+  $("#invCsv").onclick = () => { const rows = [["Group", "Name", "Plan", "Amount £"]]; Object.entries(groups).forEach(([k, l]) => l.forEach(s => rows.push([k, s.name, s.plan, (PLANS[s.plan].p * f).toFixed(2)]))); download(`invoice-${mo}-2026.csv`, rows.map(r => r.map(v => `"${v}"`).join(",")).join("\n")); toast("<b>CSV downloaded</b> sample data"); };
+  $("#invPdf").onclick = () => toast("<b>Concept</b> the PDF invoice would download here");
+}
+
+/* ---------- IMPACT ---------- */
+function renderImpact() {
+  const m2 = landM2(), goal = Math.ceil(m2 / 500) * 500 || 500;
+  $("#imLandTxt").textContent = `${D.sims.length} SIMs × 4.2 m² each a year. ${m2 >= 261 ? `That's about ${(m2 / 261).toFixed(1)} tennis courts` : `That's about ${Math.round(m2 / 13)} parking spaces`} of Sussex woodland and wetland being brought back to life.`;
+  $("#imGoal").textContent = `${fmt(goal - m2)} m² to your next milestone: ${fmt(goal)} m²`;
+  $("#imBar").dataset.w = (m2 / goal * 100).toFixed(1);
+}
+let impDone = false;
+function animImpact() { countTo($("#imLand"), landM2()); const b = $("#imBar"); b.style.width = "0"; setTimeout(() => b.style.width = b.dataset.w + "%", 60); }
+function certHTML() {
+  const c = D.c, m2 = landM2(), y = new Date().getFullYear();
+  return `<span class="wm">🌿</span>
+    <div class="top"><span class="w">eco<b>talk</b></span><span class="tag amber">Concept certificate · not issued by Ecotalk</span></div>
+    <div class="eyebrow" style="margin-top:28px">Nature impact certificate · ${y}</div>
+    <h2>Land restored for British wildlife</h2>
+    <div class="co-n">${esc(c.name)}</div>
+    <div class="fig">${fmt(m2)}<small>m² restored through ${D.sims.length} Ecotalk mobile lines</small></div>
+    <div class="cols">
+      <div><b>Bowyers Wood</b><span>East Sussex. Semi-ancient woodland where beavers returned in 2026 after 400 years.</span></div>
+      <div><b>Downicary</b><span>Devon. A grazed valley becoming wet meadow, with 3,500 trees planted in 2026.</span></div>
+      <div><b>No dividends</b><span>Ecotalk's profits fund the land, owned by the Green Britain Foundation.</span></div>
+    </div>
+    <p class="fine">Company m² figure is illustrative, based on 4.2 m² per SIM per year. Site facts from ecotalk.co.uk, October 2026. A concept by Dan Jones; not a live Ecotalk product.</p>`;
+}
+function openCert() { $("#certPrint").innerHTML = certHTML(); $("#modal").classList.add("on"); $("#ov").classList.add("on"); }
+function closeModal() { $("#modal").classList.remove("on"); if (!$("#drawer").classList.contains("on")) $("#ov").classList.remove("on"); }
+$("#mX").onclick = closeModal;
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+$("#printCert").onclick = () => window.print();
+function copyPost() { copy(`Our phone bills are now helping restore British nature. 🌿\n\nThis year ${D.c.name}'s ${D.sims.length} Ecotalk mobile lines helped restore around ${fmt(landM2())} m² of land at Bowyers Wood in East Sussex, where beavers have returned after 400 years.\n\nSame network, no price rises, and the profits go to the land, not shareholders. #Ecotalk #Rewilding`, "LinkedIn post"); }
+function copyStatement() { copy(`${D.c.name} uses Ecotalk for its ${D.sims.length} mobile lines. Ecotalk pays no dividends; its profits fund the purchase and restoration of land for British wildlife through the Green Britain Foundation, at Bowyers Wood in East Sussex and Downicary in Devon. In 2026 beavers were returned to Bowyers Wood after a 400-year absence, 3,500 trees and shrubs were planted at Downicary, and surveys recorded 37 breeding bird species at Bowyers. Our share of this work this year is estimated at ${fmt(landM2())} m² of restored land.`, "impact statement"); }
+function copyBadge() { copy("🌿 Our phones help restore British nature, with Ecotalk", "signature badge"); }
+
+/* ---------- TEAM ---------- */
+function renderTeam() {
+  const c = D.c, multi = c.sites.length > 1, groups = multi ? c.sites : c.teams, r = rng(c.seed + 3);
+  const pts = groups.map(g => [g, Math.round((multi ? 900 : 160) * (0.4 + r() * 0.8))]).sort((a, b) => b[1] - a[1]);
+  const mx = pts[0][1];
+  $("#lbTitle").textContent = multi ? "Leaderboard by site" : "Leaderboard by team";
+  $("#lb").innerHTML = pts.map(([g, p], i) => `<div class="row"><span class="rk">${i + 1}</span><div><div style="display:flex;justify-content:space-between"><span>${g}</span><b style="font-weight:500">${fmt(p)} pts</b></div><div class="bar"><i data-w="${p / mx * 100}" style="width:0"></i></div></div><span></span></div>`).join("");
+  const logged = Math.round(D.sims.length * .38);
+  $("#chTxt").textContent = `${logged} of ${D.sims.length} staff have logged an owl so far`;
+  $("#chBar").dataset.w = logged / D.sims.length * 100;
+  $("#vdays").innerHTML = [["Sat 14 Nov", "Beaver dusk walk", "Bowyers Wood"], ["Sun 6 Dec", "Winter tree planting", "Downicary"], ["Sat 23 Jan", "Hedge laying and nest boxes", "Bowyers Wood"]]
+    .map(([d, t, w], i) => `<div class="card" style="background:var(--off);border:0"><div class="eyebrow">${d}</div><h3 style="font-size:18px;margin-top:4px">${t}</h3><p class="muted" style="font-size:14px">${w}</p><button class="btn sm" style="margin-top:12px" data-vd="${i}">Book for the team</button></div>`).join("");
+}
+function animTeam() { $$("#lb .bar i, #chBar").forEach(i => { i.style.width = "0"; setTimeout(() => i.style.width = i.dataset.w + "%", 60); }); }
+document.addEventListener("click", e => { const b = e.target.closest("[data-vd]"); if (!b || b.dataset.done) return; b.dataset.done = 1; b.textContent = "✓ Requested"; b.classList.add("lime"); toast("<b>Requested</b> the reserve team will confirm numbers"); });
+
+/* ---------- ACCOUNT ---------- */
+function renderAccount() {
+  const c = D.c;
+  const admins = [[c.admin[0], "Owner · billing and all SIMs"], [c.sites.length > 1 ? "Leah Morgan" : "Ben Clarke", c.sites.length > 1 ? "Site admin · Bristol" : "Can add and manage SIMs"], ["Finance", "Invoices only · finance@" + c.name.toLowerCase().replace(/[^a-z]+/g, "") + ".co.uk"]];
+  $("#admins").innerHTML = admins.map(([n, r]) => `<div class="alert"><span class="dot" style="background:var(--forest)"></span><div class="t"><b>${esc(n)}</b><span>${esc(r)}</span></div></div>`).join("");
+}
+$("#addAdmin").onclick = () => toast("<b>Concept</b> invite another admin by email");
+$("#bundle").onclick = function () { this.textContent = "✓ The business team will be in touch"; this.disabled = true; toast("<b>Thanks</b> request noted (concept)"); };
+
+function renderAll() { renderOverview(); renderFilters(); renderRows(); renderBilling(); renderImpact(); renderTeam(); renderAccount(); }
+
+/* ---------- boot ---------- */
+let start = "small"; try { start = localStorage.getItem("ecb-co") || "small"; } catch (e) {}
+setCo(start);
+const h = location.hash.slice(1); if (h && $("#v-" + h)) go(h);
+})();
+</script>
+</body>
+</html>
